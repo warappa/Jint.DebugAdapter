@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Jint.DebugAdapter/Jint.DebugAdapter.csproj" />
+  <Project Path="Jint.DebugAdapterExample/Jint.DebugAdapterExample.csproj" />
+  <Project Path="Jither.DebugAdapter/Jither.DebugAdapter.csproj" />
+</Solution>
