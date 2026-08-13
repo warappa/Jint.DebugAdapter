@@ -16,7 +16,7 @@ public class FilesScriptHost : IScriptHost
         {
             options.DebugMode(true)
                 .SetupDebugger()
-                .EnableModules(@"D:\Web\test");
+                .EnableModules(@"D:\Web\test", false);
         });
     }
 
