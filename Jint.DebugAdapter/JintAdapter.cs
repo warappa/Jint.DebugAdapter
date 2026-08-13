@@ -407,6 +407,8 @@ namespace Jint.DebugAdapter
             foreach (var frame in frames)
             {
                 var location = frame.Location;
+                var start = ToClientPosition(location.Start);
+                var end = ToClientPosition(location.End);
                 result.Add(new StackFrame(index, frame.FunctionName)
                 {
                     Source = new Source
@@ -414,10 +416,10 @@ namespace Jint.DebugAdapter
                         Name = Path.GetFileName(location.SourceFile),
                         Path = location.SourceFile,
                     },
-                    Line = location.Start.Line,
-                    Column = location.Start.Column,
-                    EndLine = location.End.Line,
-                    EndColumn = location.End.Column
+                    Line = start.Line,
+                    Column = start.Column,
+                    EndLine = end.Line,
+                    EndColumn = end.Column
                 });
 
                 index++;
