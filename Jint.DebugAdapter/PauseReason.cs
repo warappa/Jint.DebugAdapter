@@ -1,12 +1,11 @@
-﻿namespace Jint.DebugAdapter
+﻿namespace Jint.DebugAdapter;
+
+public enum PauseReason
 {
-    public enum PauseReason
-    {
-        Step,
-        BreakPoint,
-        DebuggerStatement,
-        Exception,
-        Pause,
-        Entry
-    }
+    Step,
+    BreakPoint,
+    DebuggerStatement,
+    Exception,
+    Pause,
+    Entry
 }

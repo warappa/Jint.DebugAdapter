@@ -1,51 +1,50 @@
 ﻿using System.Text.Json;
 using Jint.DebugAdapter;
 
-namespace Jint.DebugAdapterExample
-{
-    public class InternalScriptHost : IScriptHost
-    {
-        public Engine Engine { get; }
-        public ISourceProvider SourceProvider { get; }
+namespace Jint.DebugAdapterExample;
 
-        private readonly Dictionary<string, string> scriptsBySourceId = new()
-        {
-            ["main"] = @"function main()
+public class InternalScriptHost : IScriptHost
+{
+    public Engine Engine { get; }
+    public ISourceProvider SourceProvider { get; }
+
+    private readonly Dictionary<string, string> scriptsBySourceId = new()
+    {
+        ["main"] = @"function main()
 {
     console.log('Hello from an internal script!');
 }
 
 main()"
-        };
+    };
 
-        public InternalScriptHost()
+    public InternalScriptHost()
+    {
+        var provider = new InternalSourceProvider();
+
+        provider.Register("Main script", "main", scriptsBySourceId["main"]);
+
+        SourceProvider = provider;
+
+        Engine = new Engine(options =>
         {
-            var provider = new InternalSourceProvider();
+            options.DebugMode(true)
+                .SetupDebugger();
+        });
+    }
 
-            provider.Register("Main script", "main", scriptsBySourceId["main"]);
+    public void RegisterConsole(DebugAdapter.Console console)
+    {
+        Engine.SetValue("console", console);
+    }
 
-            SourceProvider = provider;
-
-            Engine = new Engine(options =>
-            {
-                options.DebugMode(true)
-                    .SetupDebugger();
-            });
-        }
-
-        public void RegisterConsole(DebugAdapter.Console console)
+    public void Launch(string program, IReadOnlyDictionary<string, JsonElement> arguments)
+    {
+        var script = scriptsBySourceId.GetValueOrDefault(program);
+        if (script == null)
         {
-            Engine.SetValue("console", console);
+            throw new Exception($"Unknown script: {program}");
         }
-
-        public void Launch(string program, IReadOnlyDictionary<string, JsonElement> arguments)
-        {
-            var script = scriptsBySourceId.GetValueOrDefault(program);
-            if (script == null)
-            {
-                throw new Exception($"Unknown script: {program}");
-            }
-            Engine.Execute(script, program);
-        }
+        Engine.Execute(script, program);
     }
 }

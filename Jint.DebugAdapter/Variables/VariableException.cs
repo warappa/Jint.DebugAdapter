@@ -1,9 +1,8 @@
-﻿namespace Jint.DebugAdapter.Variables
+﻿namespace Jint.DebugAdapter.Variables;
+
+public class VariableException : Exception
 {
-    public class VariableException : Exception
+    public VariableException(string message) : base(message)
     {
-        public VariableException(string message) : base(message)
-        {
-        }
     }
 }

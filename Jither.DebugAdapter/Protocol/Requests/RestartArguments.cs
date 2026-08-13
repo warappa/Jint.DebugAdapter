@@ -1,17 +1,16 @@
-﻿namespace Jither.DebugAdapter.Protocol.Requests
+﻿namespace Jither.DebugAdapter.Protocol.Requests;
+
+/// <summary>
+/// Restarts a debug session. Clients should only call this request if the capability ‘supportsRestartRequest’ is true.
+/// </summary>
+/// <remarks>
+/// If the capability is missing or has the value false, a typical client will emulate ‘restart’
+/// by terminating the debug adapter first and then launching it anew.
+/// </remarks>
+public class RestartArguments : ProtocolArguments
 {
     /// <summary>
-    /// Restarts a debug session. Clients should only call this request if the capability ‘supportsRestartRequest’ is true.
+    /// The latest version of the 'launch' or 'attach' configuration.
     /// </summary>
-    /// <remarks>
-    /// If the capability is missing or has the value false, a typical client will emulate ‘restart’
-    /// by terminating the debug adapter first and then launching it anew.
-    /// </remarks>
-    public class RestartArguments : ProtocolArguments
-    {
-        /// <summary>
-        /// The latest version of the 'launch' or 'attach' configuration.
-        /// </summary>
-        public ConfigurationArguments Arguments { get; set; }
-    }
+    public ConfigurationArguments Arguments { get; set; }
 }

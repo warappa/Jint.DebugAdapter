@@ -1,7 +1,6 @@
-﻿namespace Jither.DebugAdapter.Protocol.Events
+﻿namespace Jither.DebugAdapter.Protocol.Events;
+
+public class InitializedEvent : ProtocolEventBody
 {
-    public class InitializedEvent : ProtocolEventBody
-    {
-        protected override string EventNameInternal => "initialized";
-    }
+    protected override string EventNameInternal => "initialized";
 }

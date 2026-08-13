@@ -1,19 +1,18 @@
-﻿namespace Jint.DebugAdapter
+﻿namespace Jint.DebugAdapter;
+
+public class ResetEventPauseHandler : IPauseHandler
 {
-    public class ResetEventPauseHandler : IPauseHandler
+    private readonly ManualResetEvent waitForContinue = new(false);
+
+    public void Pause()
     {
-        private readonly ManualResetEvent waitForContinue = new(false);
+        // Pause the thread until waitForContinue is set
+        waitForContinue.WaitOne();
+        waitForContinue.Reset();
+    }
 
-        public void Pause()
-        {
-            // Pause the thread until waitForContinue is set
-            waitForContinue.WaitOne();
-            waitForContinue.Reset();
-        }
-
-        public void Resume()
-        {
-            waitForContinue.Set();
-        }
+    public void Resume()
+    {
+        waitForContinue.Set();
     }
 }

@@ -1,9 +1,8 @@
-﻿namespace Jither.DebugAdapter.Protocol.Types
+﻿namespace Jither.DebugAdapter.Protocol.Types;
+
+public enum DataBreakpointAccessType
 {
-    public enum DataBreakpointAccessType
-    {
-        Read,
-        Write,
-        ReadWrite
-    }
+    Read,
+    Write,
+    ReadWrite
 }

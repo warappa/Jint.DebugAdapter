@@ -1,81 +1,80 @@
 ﻿using Jither.DebugAdapter.Protocol.Types;
 
-namespace Jint.DebugAdapter
+namespace Jint.DebugAdapter;
+
+public class InternalSourceProvider : ISourceProvider
 {
-    public class InternalSourceProvider : ISourceProvider
+    private class SourceReference
     {
-        private class SourceReference
-        {
-            public string SourceId { get; }
-            public string Name { get; }
-            public int Reference { get; }
-            public string Script { get; }
+        public string SourceId { get; }
+        public string Name { get; }
+        public int Reference { get; }
+        public string Script { get; }
 
-            public SourceReference(string name, string sourceId, int reference, string script)
-            {
-                Name = name;
-                SourceId = sourceId;
-                Reference = reference;
-                Script = script;
-            }
+        public SourceReference(string name, string sourceId, int reference, string script)
+        {
+            Name = name;
+            SourceId = sourceId;
+            Reference = reference;
+            Script = script;
         }
+    }
 
-        private readonly Dictionary<string, SourceReference> referencesBySourceId = new();
-        private readonly Dictionary<int, SourceReference> referencesByRefId = new();
+    private readonly Dictionary<string, SourceReference> referencesBySourceId = new();
+    private readonly Dictionary<int, SourceReference> referencesByRefId = new();
 
-        public int Register(string name, string sourceId, string script)
+    public int Register(string name, string sourceId, string script)
+    {
+        int referenceId = referencesByRefId.Count + 1;
+        var reference = new SourceReference(name, sourceId, referenceId, script);
+        referencesBySourceId.Add(sourceId, reference);
+        referencesByRefId.Add(referenceId, reference);
+        return referenceId;
+    }
+
+    public Source GetSource(string sourceId)
+    {
+        if (referencesBySourceId.TryGetValue(sourceId, out var result))
         {
-            int referenceId = referencesByRefId.Count + 1;
-            var reference = new SourceReference(name, sourceId, referenceId, script);
-            referencesBySourceId.Add(sourceId, reference);
-            referencesByRefId.Add(referenceId, reference);
-            return referenceId;
-        }
-
-        public Source GetSource(string sourceId)
-        {
-            if (referencesBySourceId.TryGetValue(sourceId, out var result))
-            {
-                return new Source
-                {
-                    Name = result.Name,
-                    SourceReference = result.Reference
-                };
-            }
-            // For now, if we don't find a reference, we assume it's a file system source
             return new Source
             {
-                Name = sourceId,
-                Path = sourceId
+                Name = result.Name,
+                SourceReference = result.Reference
             };
         }
-
-        public string GetSourceId(Source source)
+        // For now, if we don't find a reference, we assume it's a file system source
+        return new Source
         {
-            if (source.SourceReference < 1)
-            {
-                return null;
-            }
+            Name = sourceId,
+            Path = sourceId
+        };
+    }
 
-            return GetReference(source).SourceId;
+    public string GetSourceId(Source source)
+    {
+        if (source.SourceReference < 1)
+        {
+            return null;
         }
 
-        public string GetContent(Source source)
-        {
-            if (source.SourceReference < 1)
-            {
-                throw new ArgumentException($"Attempt to get script content, but reference wasn't provided.");
-            }
-            return GetReference(source).Script;
-        }
+        return GetReference(source).SourceId;
+    }
 
-        private SourceReference GetReference(Source source)
+    public string GetContent(Source source)
+    {
+        if (source.SourceReference < 1)
         {
-            if (!referencesByRefId.TryGetValue(source.SourceReference.Value, out var reference))
-            {
-                throw new ArgumentException($"Unknown source for source reference {source.SourceReference}");
-            }
-            return reference;
+            throw new ArgumentException($"Attempt to get script content, but reference wasn't provided.");
         }
+        return GetReference(source).Script;
+    }
+
+    private SourceReference GetReference(Source source)
+    {
+        if (!referencesByRefId.TryGetValue(source.SourceReference.Value, out var reference))
+        {
+            throw new ArgumentException($"Unknown source for source reference {source.SourceReference}");
+        }
+        return reference;
     }
 }

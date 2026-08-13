@@ -5,12 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Jither.DebugAdapter.Helpers;
 
-namespace Jither.DebugAdapter.Protocol.Types
+namespace Jither.DebugAdapter.Protocol.Types;
+
+/// <completionlist cref="PathFormat"/>
+public class PathFormat : StringEnum<PathFormat>
 {
-    /// <completionlist cref="PathFormat"/>
-    public class PathFormat : StringEnum<PathFormat>
-    {
-        public static readonly PathFormat Path = Create("path");
-        public static readonly PathFormat Uri = Create("uri");
-    }
+    public static readonly PathFormat Path = Create("path");
+    public static readonly PathFormat Uri = Create("uri");
 }

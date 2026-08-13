@@ -2,73 +2,72 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Jither.DebugAdapter.Helpers
+namespace Jither.DebugAdapter.Helpers;
+
+/// <summary>
+/// StringEnum converter, tailored for DebugAdapter protocol.
+/// </summary>
+public class StringEnumConverter : JsonConverterFactory
 {
-    /// <summary>
-    /// StringEnum converter, tailored for DebugAdapter protocol.
-    /// </summary>
-    public class StringEnumConverter : JsonConverterFactory
+    public StringEnumConverter()
     {
-        public StringEnumConverter()
-        {
 
+    }
+
+    public override bool CanConvert(Type typeToConvert)
+    {
+        while (typeToConvert != null)
+        {
+            if (typeToConvert.IsGenericType && typeToConvert.GetGenericTypeDefinition() == typeof(StringEnum<>))
+            {
+                return true;
+            }
+            typeToConvert = typeToConvert.BaseType;
         }
 
-        public override bool CanConvert(Type typeToConvert)
-        {
-            while (typeToConvert != null)
-            {
-                if (typeToConvert.IsGenericType && typeToConvert.GetGenericTypeDefinition() == typeof(StringEnum<>))
-                {
-                    return true;
-                }
-                typeToConvert = typeToConvert.BaseType;
-            }
+        return false;
+    }
 
-            return false;
+    public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
+    {
+        try
+        {
+            return Activator.CreateInstance(typeof(Converter<>).MakeGenericType(typeToConvert)) as JsonConverter;
+        }
+        catch (TargetInvocationException ex)
+        {
+            if (ex.InnerException != null)
+            {
+                throw ex.InnerException;
+            }
+            throw;
+        }
+    }
+
+    private class Converter<T> : JsonConverter<StringEnum<T>> where T : StringEnum<T>, new()
+    {
+        public Converter()
+        {
         }
 
-        public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
+        public override StringEnum<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            try
+            if (reader.TokenType != JsonTokenType.String)
             {
-                return Activator.CreateInstance(typeof(Converter<>).MakeGenericType(typeToConvert)) as JsonConverter;
+                throw new JsonException("Expected string value");
             }
-            catch (TargetInvocationException ex)
+            string value = reader.GetString();
+            if (StringEnum<T>.TryParse(value, out T result))
             {
-                if (ex.InnerException != null)
-                {
-                    throw ex.InnerException;
-                }
-                throw;
+                return result;
             }
+
+            return StringEnum<T>.Custom(value);
         }
 
-        private class Converter<T> : JsonConverter<StringEnum<T>> where T : StringEnum<T>, new()
+        public override void Write(Utf8JsonWriter writer, StringEnum<T> value, JsonSerializerOptions options)
         {
-            public Converter()
-            {
-            }
-
-            public override StringEnum<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            {
-                if (reader.TokenType != JsonTokenType.String)
-                {
-                    throw new JsonException("Expected string value");
-                }
-                string value = reader.GetString();
-                if (StringEnum<T>.TryParse(value, out T result))
-                {
-                    return result;
-                }
-
-                return StringEnum<T>.Custom(value);
-            }
-
-            public override void Write(Utf8JsonWriter writer, StringEnum<T> value, JsonSerializerOptions options)
-            {
-                writer.WriteStringValue(value.EnumValue);
-            }
+            writer.WriteStringValue(value.EnumValue);
         }
     }
 }

@@ -1,11 +1,10 @@
 ﻿using System.Text.Json;
 
-namespace Jint.DebugAdapter
-{
-    public interface IScriptHost
-    {
-        ISourceProvider SourceProvider { get; }
+namespace Jint.DebugAdapter;
 
-        void Launch(string program, IReadOnlyDictionary<string, JsonElement> arguments);
-    }
+public interface IScriptHost
+{
+    ISourceProvider SourceProvider { get; }
+
+    void Launch(string program, IReadOnlyDictionary<string, JsonElement> arguments);
 }

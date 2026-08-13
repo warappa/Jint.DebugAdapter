@@ -3,83 +3,82 @@ using Jither.DebugAdapter.Protocol.Events;
 using Jither.DebugAdapter.Protocol.Requests;
 using Jither.DebugAdapter.Protocol.Responses;
 
-namespace Jither.DebugAdapter.Protocol
+namespace Jither.DebugAdapter.Protocol;
+
+internal static class ProtocolMessageRegistry
 {
-    internal static class ProtocolMessageRegistry
+    private static readonly Dictionary<string, Type> requests = new();
+    private static readonly Dictionary<string, Type> arguments = new();
+    private static readonly Dictionary<string, Type> responses = new();
+    private static readonly Dictionary<string, Type> events = new();
+
+    static ProtocolMessageRegistry()
     {
-        private static readonly Dictionary<string, Type> requests = new();
-        private static readonly Dictionary<string, Type> arguments = new();
-        private static readonly Dictionary<string, Type> responses = new();
-        private static readonly Dictionary<string, Type> events = new();
-
-        static ProtocolMessageRegistry()
+        var types = Assembly.GetExecutingAssembly().GetTypes().Where(t => !t.IsAbstract);
+        var argumentTypes = types.Where(t => typeof(ProtocolArguments).IsAssignableFrom(t));
+        foreach (var type in argumentTypes)
         {
-            var types = Assembly.GetExecutingAssembly().GetTypes().Where(t => !t.IsAbstract);
-            var argumentTypes = types.Where(t => typeof(ProtocolArguments).IsAssignableFrom(t));
-            foreach (var type in argumentTypes)
-            {
-                RegisterRequest(type);
-            }
-
-            var responseBodyTypes = types.Where(t => typeof(ProtocolResponseBody).IsAssignableFrom(t));
-            foreach (var type in responseBodyTypes)
-            {
-                RegisterResponse(type);
-            }
-
-            var eventBodyTypes = types.Where(t => typeof(ProtocolEventBody).IsAssignableFrom(t));
-            foreach (var type in eventBodyTypes)
-            {
-                RegisterEvent(type);
-            }
+            RegisterRequest(type);
         }
 
-        private static void RegisterRequest(Type type)
+        var responseBodyTypes = types.Where(t => typeof(ProtocolResponseBody).IsAssignableFrom(t));
+        foreach (var type in responseBodyTypes)
         {
-            // Using convention for argument command name: Camel-cased type name with Arguments suffix removed.
-            string command = type.Name.Replace("Arguments", String.Empty);
-            command = Char.ToLowerInvariant(command[0]) + command[1..];
-            var requestType = typeof(IncomingProtocolRequest<>).MakeGenericType(type);
-            requests.Add(command, requestType);
-            arguments.Add(command, type);
+            RegisterResponse(type);
         }
 
-        private static void RegisterResponse(Type type)
+        var eventBodyTypes = types.Where(t => typeof(ProtocolEventBody).IsAssignableFrom(t));
+        foreach (var type in eventBodyTypes)
         {
-            // Using convention for response body command name: Camel-cased type name with ResponseBody suffix removed.
-            string command = type.Name.Replace("Response", String.Empty);
-            command = Char.ToLowerInvariant(command[0]) + command[1..];
-            var responseType = typeof(IncomingProtocolResponse<>).MakeGenericType(type);
-            responses.Add(command, responseType);
+            RegisterEvent(type);
         }
+    }
 
-        private static void RegisterEvent(Type type)
-        {
-            // Using convention for event body event name: Camel-cased type name with EventBody suffix removed.
-            string command = type.Name.Replace("Event", String.Empty);
-            command = Char.ToLowerInvariant(command[0]) + command[1..];
-            var eventType = typeof(IncomingProtocolEvent<>).MakeGenericType(type);
-            events.Add(command, eventType);
-        }
+    private static void RegisterRequest(Type type)
+    {
+        // Using convention for argument command name: Camel-cased type name with Arguments suffix removed.
+        string command = type.Name.Replace("Arguments", String.Empty);
+        command = Char.ToLowerInvariant(command[0]) + command[1..];
+        var requestType = typeof(IncomingProtocolRequest<>).MakeGenericType(type);
+        requests.Add(command, requestType);
+        arguments.Add(command, type);
+    }
 
-        public static Type GetRequestType(string command)
-        {
-            return requests.GetValueOrDefault(command) ?? throw new NotSupportedException($"Unsupported request command: {command}");
-        }
+    private static void RegisterResponse(Type type)
+    {
+        // Using convention for response body command name: Camel-cased type name with ResponseBody suffix removed.
+        string command = type.Name.Replace("Response", String.Empty);
+        command = Char.ToLowerInvariant(command[0]) + command[1..];
+        var responseType = typeof(IncomingProtocolResponse<>).MakeGenericType(type);
+        responses.Add(command, responseType);
+    }
 
-        public static Type GetArgumentsType(string command)
-        {
-            return arguments.GetValueOrDefault(command) ?? throw new NotSupportedException($"Unsupported request arguments command: {command}");
-        }
+    private static void RegisterEvent(Type type)
+    {
+        // Using convention for event body event name: Camel-cased type name with EventBody suffix removed.
+        string command = type.Name.Replace("Event", String.Empty);
+        command = Char.ToLowerInvariant(command[0]) + command[1..];
+        var eventType = typeof(IncomingProtocolEvent<>).MakeGenericType(type);
+        events.Add(command, eventType);
+    }
 
-        public static Type GetResponseType(string command)
-        {
-            return responses.GetValueOrDefault(command) ?? throw new NotSupportedException($"Unsupported response command: {command}");
-        }
+    public static Type GetRequestType(string command)
+    {
+        return requests.GetValueOrDefault(command) ?? throw new NotSupportedException($"Unsupported request command: {command}");
+    }
 
-        public static Type GetEventType(string evt)
-        {
-            return events.GetValueOrDefault(evt) ?? throw new NotSupportedException($"Unsupported event type: {evt}");
-        }
+    public static Type GetArgumentsType(string command)
+    {
+        return arguments.GetValueOrDefault(command) ?? throw new NotSupportedException($"Unsupported request arguments command: {command}");
+    }
+
+    public static Type GetResponseType(string command)
+    {
+        return responses.GetValueOrDefault(command) ?? throw new NotSupportedException($"Unsupported response command: {command}");
+    }
+
+    public static Type GetEventType(string evt)
+    {
+        return events.GetValueOrDefault(evt) ?? throw new NotSupportedException($"Unsupported event type: {evt}");
     }
 }
