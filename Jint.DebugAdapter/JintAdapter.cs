@@ -501,7 +501,7 @@ public class JintAdapter : Adapter
         // "If no end line is given, then the end line is assumed to be the start line."
         endLine ??= line;
         // "If no end column is given, then it is assumed to be in the last column of the end line."
-        endColumn ??= Int32.MaxValue;
+        endColumn ??= int.MaxValue;
 
         return (Position.From(line, column.Value), Position.From(endLine.Value, endColumn.Value));
     }

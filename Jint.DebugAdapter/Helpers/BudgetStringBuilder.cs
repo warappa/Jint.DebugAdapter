@@ -14,7 +14,7 @@ public class BudgetStringBuilder
     public BudgetStringBuilder(int budget, string separator = "")
     {
         this.separator = separator;
-        this._budget = budget - 1 - this.separator.Length;
+        _budget = budget - 1 - this.separator.Length;
     }
 
     public void Append(string text)
@@ -56,6 +56,6 @@ public class BudgetStringBuilder
 
     public override string ToString()
     {
-        return String.Join(separator, tokens);
+        return string.Join(separator, tokens);
     }
 }

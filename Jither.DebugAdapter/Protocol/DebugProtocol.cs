@@ -412,7 +412,7 @@ public class DebugProtocol
     {
         if (IsQueueingEvents && evt.Body is not OutputEvent)
         {
-            this.eventQueue.Enqueue(evt);
+            eventQueue.Enqueue(evt);
         }
         else
         {

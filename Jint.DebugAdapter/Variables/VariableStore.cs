@@ -13,7 +13,7 @@ public class VariableStore
 
     public VariableStore()
     {
-        this.infoProvider = new ValueInfoProvider(this);
+        infoProvider = new ValueInfoProvider(this);
     }
 
     public int Add(DebugScope scope, CallFrame frame = null)

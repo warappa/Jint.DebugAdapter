@@ -26,7 +26,7 @@ public static class StringCropExtensions
         {
             return ellipsis;
         }
-        if (Char.IsSurrogatePair(str, length - 1))
+        if (char.IsSurrogatePair(str, length - 1))
         {
             length--;
         }
@@ -70,13 +70,13 @@ public static class StringCropExtensions
         }
 
         // Ensure we're not splitting surrogate pairs:
-        if (Char.IsSurrogatePair(str, str.Length - rightLength - 1))
+        if (char.IsSurrogatePair(str, str.Length - rightLength - 1))
         {
             leftLength++;
             rightLength--;
         }
 
-        if (Char.IsSurrogatePair(str, leftLength - 1))
+        if (char.IsSurrogatePair(str, leftLength - 1))
         {
             leftLength--;
         }

@@ -13,7 +13,7 @@ public class ConsoleLogProvider : ILogProvider
 
     public ConsoleLogProvider()
     {
-        this.defaultColor = Console.ForegroundColor;
+        defaultColor = Console.ForegroundColor;
     }
 
     public void Log(LogLevel level, string message)

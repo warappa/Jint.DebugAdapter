@@ -109,8 +109,8 @@ public class ValueInfoProvider
             // escaped - but otherwise with minimal escaping for readability.
             JsString => JsonSerializer.Serialize(value.ToString(), stringToJsonOptions),
 
-            JsArguments arr => RenderArrayPreview(arr, String.Empty),
-            ArrayInstance arr => RenderArrayPreview(arr, String.Empty),
+            JsArguments arr => RenderArrayPreview(arr, string.Empty),
+            ArrayInstance arr => RenderArrayPreview(arr, string.Empty),
             JsTypedArray arr => RenderArrayPreview(arr, GetObjectType(arr)),
 
             Function func => $"ƒ {GetFunctionName(func) ?? name}",

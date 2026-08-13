@@ -151,7 +151,7 @@ public class ArrayLikeVariableContainer : ObjectVariableContainer
         {
             var numValue = value.AsNumber();
             uint intValue = (uint)numValue;
-            return numValue == intValue && intValue != UInt32.MaxValue;
+            return numValue == intValue && intValue != uint.MaxValue;
         }
 
         // TODO: Handle numeric string

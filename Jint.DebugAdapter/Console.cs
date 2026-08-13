@@ -19,7 +19,7 @@ public class Console
     {
         this.adapter = adapter;
         this.engine = engine;
-        this.engineThreadId = Environment.CurrentManagedThreadId;
+        engineThreadId = Environment.CurrentManagedThreadId;
     }
 
     public void Assert(JsValue assertion, params JsValue[] values)
@@ -87,7 +87,7 @@ public class Console
 
     public void GroupEnd()
     {
-        InternalSend(OutputCategory.Stdout, String.Empty, group: OutputGroup.End);
+        InternalSend(OutputCategory.Stdout, string.Empty, group: OutputGroup.End);
     }
 
     public void Info(params JsValue[] values)
@@ -152,7 +152,7 @@ public class Console
 
     private void Send(OutputCategory category, JsValue[] values, OutputGroup group = null)
     {
-        string message = String.Join(' ', values.Select(v => v?.ToString()));
+        string message = string.Join(' ', values.Select(v => v?.ToString()));
         Send(category, message, group);
     }
 
