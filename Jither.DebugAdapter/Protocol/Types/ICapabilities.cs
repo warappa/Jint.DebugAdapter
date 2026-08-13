@@ -5,7 +5,7 @@
 /// </summary>
 // Because InitializeResponseBody is == the Capabilities type, the interface enforces the same
 // properties on that ProtocolResponseBody and the actual Capabilities type.
-interface ICapabilities
+internal interface ICapabilities
 {
     /// <summary>
     /// The debug adapter supports the 'configurationDone' request.

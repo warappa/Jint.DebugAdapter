@@ -13,9 +13,9 @@ namespace Jither.DebugAdapter.Protocol;
 
 internal interface IPendingRequest
 {
-    public bool Cancelled { get; }
-    public void Cancel();
-    public ProtocolRequest Request { get; }
+    bool Cancelled { get; }
+    void Cancel();
+    ProtocolRequest Request { get; }
 }
 
 public class DebugProtocol
