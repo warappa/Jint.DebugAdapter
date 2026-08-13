@@ -8,7 +8,7 @@ namespace Jint.DebugAdapterExample
         public Engine Engine { get; }
         public ISourceProvider SourceProvider { get; }
 
-        private Dictionary<string, string> scriptsBySourceId = new()
+        private readonly Dictionary<string, string> scriptsBySourceId = new()
         {
             ["main"] = @"function main()
 {

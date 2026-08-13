@@ -1,6 +1,6 @@
 ﻿namespace Jither.DebugAdapter.Helpers
 {
-    public abstract class StringEnum<T> : IEquatable<T> where T: StringEnum<T>, new()
+    public abstract class StringEnum<T> : IEquatable<T> where T : StringEnum<T>, new()
     {
         public string EnumValue { get; private set; }
         public bool IsCustom { get; private set; }

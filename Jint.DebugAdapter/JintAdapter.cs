@@ -1,15 +1,15 @@
-﻿using Jither.DebugAdapter.Protocol.Events;
+﻿using System.Text.Json;
+using Acornima;
+using Jint.DebugAdapter.Variables;
+using Jint.Runtime.Debugger;
+using Jither.DebugAdapter;
+using Jither.DebugAdapter.Helpers;
+using Jither.DebugAdapter.Protocol.Events;
 using Jither.DebugAdapter.Protocol.Requests;
 using Jither.DebugAdapter.Protocol.Responses;
 using Jither.DebugAdapter.Protocol.Types;
-using Jint.Runtime.Debugger;
-using Jither.DebugAdapter;
-using Thread = Jither.DebugAdapter.Protocol.Types.Thread;
-using Jither.DebugAdapter.Helpers;
-using Jint.DebugAdapter.Variables;
-using System.Text.Json;
-using Acornima;
 using Scope = Jither.DebugAdapter.Protocol.Types.Scope;
+using Thread = Jither.DebugAdapter.Protocol.Types.Thread;
 
 namespace Jint.DebugAdapter
 {
@@ -47,7 +47,7 @@ namespace Jint.DebugAdapter
 
         private bool restarting;
         private DebugInformation currentDebugInformation;
-    
+
         public Console Console { get; }
 
         public JintAdapter(IScriptHost host, Engine engine, Endpoint endpoint) : base(endpoint)
@@ -166,17 +166,18 @@ namespace Jint.DebugAdapter
         protected override async Task<BreakpointLocationsResponse> BreakpointLocationsRequest(BreakpointLocationsArguments arguments)
         {
             string id = host.SourceProvider.GetSourceId(arguments.Source);
-            
+
             var (start, end) = ToJintRange(arguments.Line, arguments.Column, arguments.EndLine, arguments.EndColumn);
 
             var info = debugger.GetScriptInfo(id);
             var positions = info.FindBreakPointPositionsInRange(start, end);
 
-            var locations = positions.Select(p => {
+            var locations = positions.Select(p =>
+            {
                 var pos = ToClientPosition(p);
                 return new BreakpointLocation(pos.Line, pos.Column);
             });
-            
+
             return new BreakpointLocationsResponse(locations);
         }
 
@@ -291,7 +292,7 @@ namespace Jint.DebugAdapter
             bool debug = !(arguments.NoDebug ?? false);
 
             await debugger.LaunchAsync(
-                () => host.Launch(program, arguments.AdditionalProperties), 
+                () => host.Launch(program, arguments.AdditionalProperties),
                 debug: debug,
                 pauseOnEntry: pauseOnEntry,
                 attach: true,

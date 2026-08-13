@@ -15,9 +15,9 @@ namespace Jither.DebugAdapter.Protocol
 
         [JsonPropertyName("request_seq")]
         public int RequestSeq { get; set; }
-        
+
         public string Message { get; set; }
-        
+
         public abstract ProtocolResponseBody UntypedBody { get; }
 
         public BaseProtocolResponse()
@@ -47,7 +47,7 @@ namespace Jither.DebugAdapter.Protocol
         }
     }
 
-    public class IncomingProtocolResponse<T> : BaseProtocolResponse where T: Responses.ProtocolResponseBody
+    public class IncomingProtocolResponse<T> : BaseProtocolResponse where T : Responses.ProtocolResponseBody
     {
         [JsonPropertyOrder(100)]
         public T Body { get; set; }

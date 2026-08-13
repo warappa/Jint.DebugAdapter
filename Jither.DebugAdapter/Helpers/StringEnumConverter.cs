@@ -11,7 +11,7 @@ namespace Jither.DebugAdapter.Helpers
     {
         public StringEnumConverter()
         {
-            
+
         }
 
         public override bool CanConvert(Type typeToConvert)

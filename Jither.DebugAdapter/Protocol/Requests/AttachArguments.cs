@@ -10,6 +10,6 @@
     /// </remarks>
     public class AttachArguments : ConfigurationArguments
     {
-        
+
     }
 }

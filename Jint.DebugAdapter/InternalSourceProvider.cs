@@ -20,8 +20,8 @@ namespace Jint.DebugAdapter
             }
         }
 
-        private Dictionary<string, SourceReference> referencesBySourceId = new();
-        private Dictionary<int, SourceReference> referencesByRefId = new();
+        private readonly Dictionary<string, SourceReference> referencesBySourceId = new();
+        private readonly Dictionary<int, SourceReference> referencesByRefId = new();
 
         public int Register(string name, string sourceId, string script)
         {
@@ -56,7 +56,7 @@ namespace Jint.DebugAdapter
             {
                 return null;
             }
-            
+
             return GetReference(source).SourceId;
         }
 

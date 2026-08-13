@@ -159,7 +159,7 @@ public class ValueInfoProvider
         return constructor?.Get("name")?.ToString() ?? "Object";
     }
 
-    
+
     // Intended as possible future extension point
     protected string GetFunctionName(Function func)
     {

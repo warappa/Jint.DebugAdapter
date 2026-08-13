@@ -14,7 +14,7 @@
         /// <param name="endColumn">An optional end column of the range covered by the goto target.</param>
         /// <param name="instructionPointerReference">Optional memory reference for the instruction pointer value
         /// represented by this target.</param>
-        public GotoTarget(int id, string label, int line, int? column = null, int? endLine = null, 
+        public GotoTarget(int id, string label, int line, int? column = null, int? endLine = null,
             int? endColumn = null, string instructionPointerReference = null)
         {
             Id = id;

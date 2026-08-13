@@ -128,10 +128,10 @@ namespace Jint.DebugAdapter.BreakPoints
 
             var script = new Script(NodeList.From<Statement>(new[] { statement }), strict: true);
 
-            var prepared  = (Prepared<Script>)Activator.CreateInstance(
-                typeof(Prepared<Script>), 
-                script, 
-                ScriptPreparationOptions.Default.ParsingOptions, 
+            var prepared = (Prepared<Script>)Activator.CreateInstance(
+                typeof(Prepared<Script>),
+                script,
+                ScriptPreparationOptions.Default.ParsingOptions,
                 null);
             return prepared;
         }
@@ -153,7 +153,7 @@ namespace Jint.DebugAdapter.BreakPoints
             }
 
             // Wenn du Strict-Mode erzwingen möchtest (wie im alten Esprima-Code)
-            var options = new ScriptPreparationOptions {  };
+            var options = new ScriptPreparationOptions { };
 
             // Nutzt die offizielle öffentliche Jint 4.15.3 API
             return Engine.PrepareScript(sb.ToString(), null, true, options);

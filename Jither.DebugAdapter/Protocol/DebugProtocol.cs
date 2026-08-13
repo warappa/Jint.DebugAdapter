@@ -281,7 +281,7 @@ namespace Jither.DebugAdapter.Protocol
         private async Task HandleMessage(string json)
         {
             ProtocolMessage message = JsonHelper.Deserialize<ProtocolMessage>(json);
-            
+
             switch (message)
             {
                 case BaseProtocolRequest request:

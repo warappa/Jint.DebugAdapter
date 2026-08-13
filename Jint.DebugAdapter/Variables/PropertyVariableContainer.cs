@@ -1,6 +1,6 @@
-﻿using Jint.Runtime.Descriptors;
+﻿using Jint.Native;
 using Jint.Native.Object;
-using Jint.Native;
+using Jint.Runtime.Descriptors;
 
 namespace Jint.DebugAdapter.Variables
 {

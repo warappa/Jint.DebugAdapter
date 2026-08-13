@@ -1,8 +1,8 @@
-﻿using Jint.Native.Object;
+﻿using Jint.DebugAdapter.Helpers;
 using Jint.Native;
+using Jint.Native.Object;
 using Jint.Runtime;
 using Jint.Runtime.Descriptors;
-using Jint.DebugAdapter.Helpers;
 
 namespace Jint.DebugAdapter.Variables;
 
@@ -88,7 +88,7 @@ public class ArrayLikeVariableContainer : ObjectVariableContainer
     private IEnumerable<KeyValuePair<string, JsValue>> GetTypedArrayIndexValues(int? start, int? count)
     {
         var arr = instance as JsTypedArray;
-        
+
         int length = (int)arr.Length;
         if (count > 0)
         {

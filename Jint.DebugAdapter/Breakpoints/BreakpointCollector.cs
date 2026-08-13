@@ -20,7 +20,7 @@ namespace Jint.DebugAdapter.BreakPoints
                 positions.Add(node.Location.Start);
             }
             base.Visit(node);
-            
+
             return node;
         }
 

@@ -164,16 +164,16 @@ public class Console
     private void InternalSend(OutputCategory category, string message, OutputGroup group = null)
     {
         EnsureOnEngineThread();
-        
+
         Acornima.SourceLocation? location = null;
-        
+
         // We're on the engine thread, so we're free to call it directly
         var engineLocation = engine.Debugger.CurrentLocation;
         if (engineLocation != null)
         {
             location = engineLocation.Value; //adapter.ToClientSourceLocation(engineLocation.Value);
         }
-        
+
         adapter.SendEvent(new OutputEvent(message)
         {
             Category = category,

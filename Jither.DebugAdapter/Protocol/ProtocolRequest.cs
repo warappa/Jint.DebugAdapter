@@ -6,7 +6,7 @@ namespace Jither.DebugAdapter.Protocol
     public abstract class BaseProtocolRequest : ProtocolMessage
     {
         public const string TypeName = "request";
-        
+
         [JsonPropertyOrder(-10)]
         public string Command { get; set; }
 
@@ -22,7 +22,7 @@ namespace Jither.DebugAdapter.Protocol
     {
         [JsonIgnore]
         public ProtocolArguments Arguments { get; private set; }
-        
+
         [JsonIgnore]
         public override ProtocolArguments UntypedArguments => Arguments;
 
@@ -41,7 +41,7 @@ namespace Jither.DebugAdapter.Protocol
         internal abstract void Sanitize(ProtocolArguments arguments);
     }
 
-    public class IncomingProtocolRequest<TArguments> : IncomingProtocolRequest where TArguments: ProtocolArguments
+    public class IncomingProtocolRequest<TArguments> : IncomingProtocolRequest where TArguments : ProtocolArguments
     {
         [JsonPropertyOrder(100)]
         public TArguments Arguments { get; set; }

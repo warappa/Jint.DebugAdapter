@@ -287,7 +287,7 @@ internal class SynchronizingDebugger
         {
             engine.Debugger.BreakPoints.Set(new ExtendedBreakPoint(sourceId, position.Line, position.Column, condition, hitCondition, logMessage));
         });
-        
+
         return position;
     }
 
