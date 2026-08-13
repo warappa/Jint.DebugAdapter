@@ -18,10 +18,10 @@ public abstract class Adapter
 
     public void StartListening()
     {
-        Task.Run(() =>
+        Task.Run(async () =>
         {
             endpoint.Initialize(this);
-            endpoint.StartAsync();
+            _ = endpoint.StartAsync();
         });
         OnListening();
     }
