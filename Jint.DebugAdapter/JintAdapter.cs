@@ -6,9 +6,10 @@ using Jint.Runtime.Debugger;
 using Jither.DebugAdapter;
 using Thread = Jither.DebugAdapter.Protocol.Types.Thread;
 using Jither.DebugAdapter.Helpers;
-using Esprima;
 using Jint.DebugAdapter.Variables;
 using System.Text.Json;
+using Acornima;
+using Scope = Jither.DebugAdapter.Protocol.Types.Scope;
 
 namespace Jint.DebugAdapter
 {
@@ -405,10 +406,14 @@ namespace Jint.DebugAdapter
             int index = 0;
             foreach (var frame in frames)
             {
-                var location = ToClientSourceLocation(frame.Location);
+                var location = frame.Location;
                 result.Add(new StackFrame(index, frame.FunctionName)
                 {
-                    Source = location.Source,
+                    Source = new Source
+                    {
+                        Name = Path.GetFileName(location.SourceFile),
+                        Path = location.SourceFile,
+                    },
                     Line = location.Start.Line,
                     Column = location.Start.Column,
                     EndLine = location.End.Line,
@@ -453,15 +458,6 @@ namespace Jint.DebugAdapter
             var variables = container.GetVariables(arguments.Filter, arguments.Start, arguments.Count);
 
             return new VariablesResponse(variables);
-        }
-
-        internal SourceLocation ToClientSourceLocation(Location location)
-        {
-            return new SourceLocation(
-                source: host.SourceProvider.GetSource(location.Source),
-                start: ToClientPosition(location.Start),
-                end: ToClientPosition(location.End)
-            );
         }
 
         /// <summary>

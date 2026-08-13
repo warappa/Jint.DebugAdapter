@@ -1,5 +1,5 @@
-﻿using Esprima;
-using Esprima.Ast;
+﻿using Acornima;
+using Acornima.Ast;
 using Jint.DebugAdapter.BreakPoints;
 
 namespace Jint.DebugAdapter

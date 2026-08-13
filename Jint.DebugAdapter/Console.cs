@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Globalization;
-using Esprima;
 using Jint.Native;
 using Jint.Runtime;
 using Jither.DebugAdapter.Protocol.Events;
@@ -166,13 +165,13 @@ public class Console
     {
         EnsureOnEngineThread();
         
-        SourceLocation location = null;
+        Acornima.SourceLocation? location = null;
         
         // We're on the engine thread, so we're free to call it directly
         var engineLocation = engine.Debugger.CurrentLocation;
         if (engineLocation != null)
         {
-            location = adapter.ToClientSourceLocation(engineLocation.Value);
+            location = engineLocation.Value; //adapter.ToClientSourceLocation(engineLocation.Value);
         }
         
         adapter.SendEvent(new OutputEvent(message)
@@ -180,7 +179,11 @@ public class Console
             Category = category,
             Line = location?.Start.Line,
             Column = location?.Start.Column,
-            Source = location?.Source,
+            Source = new Source
+            {
+                Name = location is not null ? Path.GetFileName(location.Value.SourceFile) : "<unknown>",
+                Path = location?.SourceFile
+            },
             Group = group
         });
     }

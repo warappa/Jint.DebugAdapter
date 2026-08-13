@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Threading.Channels;
-using Esprima;
-using Esprima.Ast;
+using Acornima;
+using Acornima.Ast;
 using Jint.DebugAdapter.BreakPoints;
 using Jint.Native;
 using Jint.Runtime.Debugger;
@@ -133,7 +133,7 @@ internal class SynchronizingDebugger
         engineThreadId = Environment.CurrentManagedThreadId;
     }
 
-    public async Task<Location?> GetCurrentLocationAsync()
+    public async Task<Acornima.SourceLocation?> GetCurrentLocationAsync()
     {
         return await InvokeAsync(() => engine?.Debugger.CurrentLocation);
     }
@@ -220,7 +220,7 @@ internal class SynchronizingDebugger
         return await InvokeAsync(() => engine.Debugger.Evaluate(expression));
     }
 
-    public async Task<JsValue> EvaluateAsync(Script expression)
+    public async Task<JsValue> EvaluateAsync(Prepared<Script> expression)
     {
         return await InvokeAsync(() => engine.Debugger.Evaluate(expression));
     }
@@ -384,7 +384,7 @@ internal class SynchronizingDebugger
 
     private void DebugHandler_BeforeEvaluate(object sender, Program ast)
     {
-        RegisterScriptInfo(ast.Location.Source, ast);
+        RegisterScriptInfo(ast.Location.SourceFile, ast);
     }
 
     private StepMode DebugHandler_Step(object sender, DebugInformation e)
@@ -501,7 +501,7 @@ internal class SynchronizingDebugger
             }
 
             // If this is a logpoint rather than a breakpoint, log message and don't break
-            if (breakPoint.LogMessage != null)
+            if (breakPoint.LogMessage.IsValid)
             {
                 // We're on the engine thread (it called us), so we're free to use Evaluate directly:
                 var message = engine.Debugger.Evaluate(breakPoint.LogMessage);

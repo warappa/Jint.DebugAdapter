@@ -1,13 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Jint\Jint\Jint.csproj" />
+    <!-- <ProjectReference Include="..\..\Jint\Jint\Jint.csproj" /> -->
+    <PackageReference Include="Jint" Version="4.15.3"/>
     <ProjectReference Include="..\Jither.DebugAdapter\Jither.DebugAdapter.csproj" />
   </ItemGroup>
 

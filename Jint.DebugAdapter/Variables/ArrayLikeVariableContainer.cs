@@ -2,8 +2,6 @@
 using Jint.Native;
 using Jint.Runtime;
 using Jint.Runtime.Descriptors;
-using Jint.Native.TypedArray;
-using Jint.Native.Argument;
 using Jint.DebugAdapter.Helpers;
 
 namespace Jint.DebugAdapter.Variables;

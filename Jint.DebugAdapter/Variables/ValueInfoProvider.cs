@@ -1,19 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Encodings.Web;
+﻿using System.Text.Encodings.Web;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Jint.DebugAdapter.Helpers;
 using Jint.Native;
-using Jint.Native.Argument;
 using Jint.Native.Array;
-using Jint.Native.Date;
 using Jint.Native.Function;
 using Jint.Native.Object;
-using Jint.Native.RegExp;
-using Jint.Native.TypedArray;
 using Jint.Runtime.Descriptors;
 using Jither.DebugAdapter.Protocol.Types;
 
