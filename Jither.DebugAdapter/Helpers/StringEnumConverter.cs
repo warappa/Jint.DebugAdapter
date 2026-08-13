@@ -56,8 +56,8 @@ public class StringEnumConverter : JsonConverterFactory
             {
                 throw new JsonException("Expected string value");
             }
-            string value = reader.GetString();
-            if (StringEnum<T>.TryParse(value, out T result))
+            var value = reader.GetString();
+            if (StringEnum<T>.TryParse(value, out var result))
             {
                 return result;
             }

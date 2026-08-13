@@ -89,8 +89,8 @@ public class DebugProtocol
     {
         var pipe = new Pipe();
         isRunning = true;
-        Task writing = FillPipeAsync(pipe.Writer);
-        Task reading = ReadPipeAsync(pipe.Reader);
+        var writing = FillPipeAsync(pipe.Writer);
+        var reading = ReadPipeAsync(pipe.Reader);
 
         await Task.WhenAll(reading, writing);
         isRunning = false;
@@ -102,10 +102,10 @@ public class DebugProtocol
 
         while (true)
         {
-            Memory<byte> buffer = writer.GetMemory(minimumBufferSize);
+            var buffer = writer.GetMemory(minimumBufferSize);
             try
             {
-                int bytesRead = await inputStream.ReadAsync(buffer, CancellationToken)
+                var bytesRead = await inputStream.ReadAsync(buffer, CancellationToken)
                     .ConfigureAwait(continueOnCapturedContext: false);
 
                 if (bytesRead == 0)
@@ -143,7 +143,7 @@ public class DebugProtocol
     private async Task ReadPipeAsync(PipeReader reader)
     {
         // In addition to body length, nextMessageBodyLength functions as state (reading header = -1, reading body = > -1)
-        int nextMessageBodyLength = -1;
+        var nextMessageBodyLength = -1;
         while (true)
         {
             var result = await reader.ReadAsync(CancellationToken)
@@ -235,8 +235,8 @@ public class DebugProtocol
 
     private int ProcessHeader(ReadOnlySequence<byte> buffer)
     {
-        string value = Encoding.UTF8.GetString(buffer);
-        Match match = rxContentLength.Match(value);
+        var value = Encoding.UTF8.GetString(buffer);
+        var match = rxContentLength.Match(value);
         if (!match.Success)
         {
             throw new ProtocolException($"Expected content-length header, but found: {value}");
@@ -247,7 +247,7 @@ public class DebugProtocol
 
     private async Task<bool> ProcessBody(ReadOnlySequence<byte> buffer)
     {
-        string json = Encoding.UTF8.GetString(buffer);
+        var json = Encoding.UTF8.GetString(buffer);
         try
         {
             // Don't send events until message handling is done
@@ -278,7 +278,7 @@ public class DebugProtocol
 
     private async Task HandleMessage(string json)
     {
-        ProtocolMessage message = JsonHelper.Deserialize<ProtocolMessage>(json);
+        var message = JsonHelper.Deserialize<ProtocolMessage>(json);
 
         switch (message)
         {
@@ -300,7 +300,7 @@ public class DebugProtocol
         {
             // Interpolation for lazy serialization
             logger.Log(LogLevel.Verbose, $"{JsonHelper.SerializeForOutput(request)}");
-            bool disconnecting = request.Command == "disconnect";
+            var disconnecting = request.Command == "disconnect";
             if (disconnecting)
             {
                 IsQueueingEvents = false;
@@ -427,9 +427,9 @@ public class DebugProtocol
         // Interpolation for lazy serialization
         logger.Log(LogLevel.Verbose, $"{JsonHelper.SerializeForOutput(message)}");
 
-        string json = JsonHelper.Serialize(message);
+        var json = JsonHelper.Serialize(message);
         var bytes = Encoding.UTF8.GetBytes(json);
-        string contentLength = $"Content-Length: {bytes.Length}\r\n\r\n";
+        var contentLength = $"Content-Length: {bytes.Length}\r\n\r\n";
         var bytesHeader = Encoding.UTF8.GetBytes(contentLength);
 
         var buffer = new byte[bytes.Length + bytesHeader.Length];

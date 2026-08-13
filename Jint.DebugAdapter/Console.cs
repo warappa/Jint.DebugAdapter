@@ -130,8 +130,8 @@ public class Console
         }
 
         var elapsed = Stopwatch.GetTimestamp() - started;
-        string ms = (elapsed / 10000d).ToString(CultureInfo.InvariantCulture);
-        string message = $"{label}: {ms} ms";
+        var ms = (elapsed / 10000d).ToString(CultureInfo.InvariantCulture);
+        var message = $"{label}: {ms} ms";
         if (end)
         {
             message += " - timer ended.";
@@ -152,7 +152,7 @@ public class Console
 
     private void Send(OutputCategory category, JsValue[] values, OutputGroup group = null)
     {
-        string message = string.Join(' ', values.Select(v => v?.ToString()));
+        var message = string.Join(' ', values.Select(v => v?.ToString()));
         Send(category, message, group);
     }
 

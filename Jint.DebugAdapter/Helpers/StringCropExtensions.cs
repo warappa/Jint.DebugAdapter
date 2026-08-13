@@ -21,7 +21,7 @@ public static class StringCropExtensions
         {
             return str;
         }
-        int length = maxLength - ellipsis.Length;
+        var length = maxLength - ellipsis.Length;
         if (length <= 0)
         {
             return ellipsis;
@@ -60,8 +60,8 @@ public static class StringCropExtensions
         }
 
         maxLength -= ellipsis.Length;
-        int leftLength = maxLength / 2;
-        int rightLength = maxLength - leftLength;
+        var leftLength = maxLength / 2;
+        var rightLength = maxLength - leftLength;
 
         // No space for anything except separator (or a single character on one side)
         if (rightLength <= 0 || leftLength <= 0)

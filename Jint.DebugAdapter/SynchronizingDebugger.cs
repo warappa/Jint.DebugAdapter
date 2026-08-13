@@ -445,7 +445,7 @@ internal class SynchronizingDebugger
             return StepMode.None;
         }
 
-        bool breakPointShouldBreak = HandleBreakPoint(e);
+        var breakPointShouldBreak = HandleBreakPoint(e);
 
         switch (e.PauseType)
         {

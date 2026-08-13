@@ -37,7 +37,7 @@ internal static class ProtocolMessageRegistry
     private static void RegisterRequest(Type type)
     {
         // Using convention for argument command name: Camel-cased type name with Arguments suffix removed.
-        string command = type.Name.Replace("Arguments", string.Empty);
+        var command = type.Name.Replace("Arguments", string.Empty);
         command = char.ToLowerInvariant(command[0]) + command[1..];
         var requestType = typeof(IncomingProtocolRequest<>).MakeGenericType(type);
         requests.Add(command, requestType);
@@ -47,7 +47,7 @@ internal static class ProtocolMessageRegistry
     private static void RegisterResponse(Type type)
     {
         // Using convention for response body command name: Camel-cased type name with ResponseBody suffix removed.
-        string command = type.Name.Replace("Response", string.Empty);
+        var command = type.Name.Replace("Response", string.Empty);
         command = char.ToLowerInvariant(command[0]) + command[1..];
         var responseType = typeof(IncomingProtocolResponse<>).MakeGenericType(type);
         responses.Add(command, responseType);
@@ -56,7 +56,7 @@ internal static class ProtocolMessageRegistry
     private static void RegisterEvent(Type type)
     {
         // Using convention for event body event name: Camel-cased type name with EventBody suffix removed.
-        string command = type.Name.Replace("Event", string.Empty);
+        var command = type.Name.Replace("Event", string.Empty);
         command = char.ToLowerInvariant(command[0]) + command[1..];
         var eventType = typeof(IncomingProtocolEvent<>).MakeGenericType(type);
         events.Add(command, eventType);

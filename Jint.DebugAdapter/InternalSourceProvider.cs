@@ -25,7 +25,7 @@ public class InternalSourceProvider : ISourceProvider
 
     public int Register(string name, string sourceId, string script)
     {
-        int referenceId = referencesByRefId.Count + 1;
+        var referenceId = referencesByRefId.Count + 1;
         var reference = new SourceReference(name, sourceId, referenceId, script);
         referencesBySourceId.Add(sourceId, reference);
         referencesByRefId.Add(referenceId, reference);

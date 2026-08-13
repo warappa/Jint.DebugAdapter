@@ -32,7 +32,7 @@ public class ScriptInfo
     {
         var positions = BreakPointPositions;
 
-        int index = positions.BinarySearch(start, EsprimaPositionComparer.Default);
+        var index = positions.BinarySearch(start, EsprimaPositionComparer.Default);
 
         if (index < 0)
         {
@@ -56,7 +56,7 @@ public class ScriptInfo
     public Position FindNearestBreakPointPosition(Position position)
     {
         var positions = BreakPointPositions;
-        int index = positions.BinarySearch(position, EsprimaPositionComparer.Default);
+        var index = positions.BinarySearch(position, EsprimaPositionComparer.Default);
         if (index < 0)
         {
             // Get the first break after the location

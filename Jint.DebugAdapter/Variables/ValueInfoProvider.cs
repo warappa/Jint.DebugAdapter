@@ -46,7 +46,7 @@ public class ValueInfoProvider
             case JsTypedArray:
                 obj = value as ObjectInstance;
                 // Yes, JS supports array length up to 2^32-1, but DAP only supports up to 2^31-1
-                int length = (int)obj.GetLengthValue();
+                var length = (int)obj.GetLengthValue();
 
                 if (length > 100)
                 {
@@ -179,7 +179,7 @@ public class ValueInfoProvider
     protected string RenderArrayPreview(ObjectInstance obj, string prefix)
     {
         // Yes, JS supports array length up to 2^32-1, but DAP only supports up to 2^31-1
-        int length = (int)obj.GetLengthValue();
+        var length = (int)obj.GetLengthValue();
         var builder = new BudgetStringBuilder(objectPreviewBudget);
         builder.Append($"{prefix}({length})".CropEnd(builder.Budget));
         builder.Append(" ");
@@ -187,7 +187,7 @@ public class ValueInfoProvider
         // We subtract 2 from the budget to leave room for brackets
         var propsBuilder = new BudgetStringBuilder(builder.Budget - 2, ", ");
 
-        for (int i = 0; i < length; i++)
+        for (var i = 0; i < length; i++)
         {
             if (!propsBuilder.CheckBudget())
             {
@@ -222,7 +222,7 @@ public class ValueInfoProvider
 
     protected string RenderPropertyPreview(JsValue key, JsValue value)
     {
-        string strValue = value switch
+        var strValue = value switch
         {
             Function => "ƒ",
             ObjectInstance => "{…}",

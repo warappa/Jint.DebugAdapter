@@ -154,9 +154,9 @@ public class JintAdapter : Adapter
     {
         mode = AdapterMode.Attach;
 
-        bool pauseOnAttach = arguments.AdditionalProperties["stop"].GetBoolean();
+        var pauseOnAttach = arguments.AdditionalProperties["stop"].GetBoolean();
         // Not a fan of double negatives (i.e. testing for !noDebug), so let's convert it to debug
-        bool debug = !(arguments.NoDebug ?? false);
+        var debug = !(arguments.NoDebug ?? false);
 
         debugger.Attach(pauseOnAttach);
 
@@ -165,7 +165,7 @@ public class JintAdapter : Adapter
 
     protected override async Task<BreakpointLocationsResponse> BreakpointLocationsRequest(BreakpointLocationsArguments arguments)
     {
-        string id = host.SourceProvider.GetSourceId(arguments.Source);
+        var id = host.SourceProvider.GetSourceId(arguments.Source);
 
         var (start, end) = ToJintRange(arguments.Line, arguments.Column, arguments.EndLine, arguments.EndColumn);
 
@@ -286,10 +286,10 @@ public class JintAdapter : Adapter
 
     private async Task LaunchAsync(ConfigurationArguments arguments)
     {
-        string program = arguments.AdditionalProperties["program"].GetString();
-        bool pauseOnEntry = arguments.AdditionalProperties["stopOnEntry"].GetBoolean();
+        var program = arguments.AdditionalProperties["program"].GetString();
+        var pauseOnEntry = arguments.AdditionalProperties["stopOnEntry"].GetBoolean();
         // Not a fan of double negatives (i.e. testing for !noDebug), so let's convert it to debug
-        bool debug = !(arguments.NoDebug ?? false);
+        var debug = !(arguments.NoDebug ?? false);
 
         await debugger.LaunchAsync(
             () => host.Launch(program, arguments.AdditionalProperties),
@@ -337,7 +337,7 @@ public class JintAdapter : Adapter
     {
         // TODO: What should be done if client sends breakpoints for unknown source?
         // (Happens e.g. when launching a file in VSCode while other files are open).
-        string id = host.SourceProvider.GetSourceId(arguments.Source);
+        var id = host.SourceProvider.GetSourceId(arguments.Source);
 
         // SetBreakpoints expects us to clear all current breakpoints
         await debugger.ClearBreakPointsAsync();
@@ -404,7 +404,7 @@ public class JintAdapter : Adapter
         }
 
         var result = new List<StackFrame>();
-        int index = 0;
+        var index = 0;
         foreach (var frame in frames)
         {
             var location = frame.Location;

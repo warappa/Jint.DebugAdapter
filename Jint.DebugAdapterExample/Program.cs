@@ -26,7 +26,7 @@ static Endpoint CreateEndpoint(string? endpoint)
     {
         return new StdInOutEndpoint();
     }
-    if (int.TryParse(endpoint, out int port))
+    if (int.TryParse(endpoint, out var port))
     {
         return new TcpEndpoint(port);
     }

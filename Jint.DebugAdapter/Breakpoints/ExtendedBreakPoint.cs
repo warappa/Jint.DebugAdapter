@@ -37,10 +37,10 @@ public class ExtendedBreakPoint : BreakPoint
             throw new FormatException($"Invalid hit condition: {condition}");
         }
 
-        string op = match.Groups["operator"].Success ? match.Groups["operator"].Value : "=";
-        string strCount = match.Groups["count"].Value;
+        var op = match.Groups["operator"].Success ? match.Groups["operator"].Value : "=";
+        var strCount = match.Groups["count"].Value;
 
-        if (!int.TryParse(strCount, out int count))
+        if (!int.TryParse(strCount, out var count))
         {
             throw new FormatException($"Invalid hit condition: {condition} - count should be a 32 bit integer");
         }
@@ -65,7 +65,7 @@ public class ExtendedBreakPoint : BreakPoint
         }
 
         var parts = new List<Expression>();
-        int end = 0;
+        var end = 0;
 
         void AddLiteral(string value)
         {
@@ -76,7 +76,7 @@ public class ExtendedBreakPoint : BreakPoint
         // Build a list of string literals (outside braces) and parsed expressions (inside braces):
         while (true)
         {
-            int start = message.IndexOf('{', end);
+            var start = message.IndexOf('{', end);
             if (start < 0)
             {
                 AddLiteral(message[end..]);
@@ -96,7 +96,7 @@ public class ExtendedBreakPoint : BreakPoint
             }
             end = start + partAst.Range.End;
 
-            string code = message[start..end];
+            var code = message[start..end];
 
             // If braces were empty or unclosed, treat as string literal
             if (end - 1 == start + 1 || message[end - 1] != '}')
@@ -119,8 +119,8 @@ public class ExtendedBreakPoint : BreakPoint
         }
 
         // Combine our parts into a single Script AST:
-        Expression expr = parts[^1];
-        for (int i = parts.Count - 2; i >= 0; i--)
+        var expr = parts[^1];
+        for (var i = parts.Count - 2; i >= 0; i--)
         {
             expr = new NonLogicalBinaryExpression("+", parts[i], expr);
         }
@@ -146,7 +146,7 @@ public class ExtendedBreakPoint : BreakPoint
         var sb = new StringBuilder();
         sb.Append(parts[0]);
 
-        for (int i = 1; i < parts.Count; i++)
+        for (var i = 1; i < parts.Count; i++)
         {
             sb.Append(" + ");
             sb.Append(parts[i]);
