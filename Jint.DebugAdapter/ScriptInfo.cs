@@ -20,10 +20,8 @@ public class EsprimaPositionComparer : IComparer<Position>
 
 public class ScriptInfo
 {
-    private List<Position> breakPointPositions;
-
     public Program Ast { get; }
-    public List<Position> BreakPointPositions => breakPointPositions ??= CollectBreakPointPositions();
+    public List<Position> BreakPointPositions => field ??= CollectBreakPointPositions();
 
     public ScriptInfo(Program ast)
     {

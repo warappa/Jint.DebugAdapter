@@ -30,8 +30,6 @@ public class DebugProtocol
 
     private bool isRunning;
     private bool isHandlingError;
-    private bool _isSending;
-    private bool _isQueueingEvents;
     private readonly ManualResetEvent waitForMessages = new(true);
     private readonly CancellationTokenSource cts = new();
     private CancellationToken CancellationToken => cts.Token;
@@ -47,11 +45,11 @@ public class DebugProtocol
     // syncOutput should be locked when accessing IsSending
     private bool IsSending
     {
-        get => _isSending;
+        get;
         set
         {
-            _isSending = value;
-            if (_isSending)
+            field = value;
+            if (field)
             {
                 waitForMessages.Reset();
             }
@@ -68,14 +66,14 @@ public class DebugProtocol
         {
             lock (syncDispatcher)
             {
-                return _isQueueingEvents;
+                return field;
             }
         }
         set
         {
             lock (syncDispatcher)
             {
-                _isQueueingEvents = value;
+                field = value;
             }
         }
     }

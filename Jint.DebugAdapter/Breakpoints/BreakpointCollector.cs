@@ -5,9 +5,7 @@ namespace Jint.DebugAdapter.BreakPoints;
 
 public class BreakPointCollector : AstVisitor
 {
-    private readonly List<Position> positions = new();
-
-    public List<Position> Positions => positions;
+    public List<Position> Positions { get; } = new();
 
     public BreakPointCollector()
     {
@@ -17,7 +15,7 @@ public class BreakPointCollector : AstVisitor
     {
         if (node is Statement && node is not BlockStatement)
         {
-            positions.Add(node.Location.Start);
+            Positions.Add(node.Location.Start);
         }
         base.Visit(node);
 
@@ -28,7 +26,7 @@ public class BreakPointCollector : AstVisitor
     {
         base.VisitDoWhileStatement(doWhileStatement);
 
-        positions.Add(doWhileStatement.Test.Location.Start);
+        Positions.Add(doWhileStatement.Test.Location.Start);
 
         return doWhileStatement;
     }
@@ -37,7 +35,7 @@ public class BreakPointCollector : AstVisitor
     {
         base.VisitForInStatement(forInStatement);
 
-        positions.Add(forInStatement.Left.Location.Start);
+        Positions.Add(forInStatement.Left.Location.Start);
 
         return forInStatement;
     }
@@ -46,7 +44,7 @@ public class BreakPointCollector : AstVisitor
     {
         base.VisitForOfStatement(forOfStatement);
 
-        positions.Add(forOfStatement.Left.Location.Start);
+        Positions.Add(forOfStatement.Left.Location.Start);
 
         return forOfStatement;
     }
@@ -57,11 +55,11 @@ public class BreakPointCollector : AstVisitor
 
         if (forStatement.Test != null)
         {
-            positions.Add(forStatement.Test.Location.Start);
+            Positions.Add(forStatement.Test.Location.Start);
         }
         if (forStatement.Update != null)
         {
-            positions.Add(forStatement.Update.Location.Start);
+            Positions.Add(forStatement.Update.Location.Start);
         }
 
         return forStatement;
@@ -71,7 +69,7 @@ public class BreakPointCollector : AstVisitor
     {
         base.VisitArrowFunctionExpression(arrowFunctionExpression);
 
-        positions.Add(arrowFunctionExpression.Body.Location.End);
+        Positions.Add(arrowFunctionExpression.Body.Location.End);
 
         return arrowFunctionExpression;
     }
@@ -80,7 +78,7 @@ public class BreakPointCollector : AstVisitor
     {
         base.VisitFunctionDeclaration(functionDeclaration);
 
-        positions.Add(functionDeclaration.Body.Location.End);
+        Positions.Add(functionDeclaration.Body.Location.End);
 
         return functionDeclaration;
     }
@@ -89,7 +87,7 @@ public class BreakPointCollector : AstVisitor
     {
         base.VisitFunctionExpression(function);
 
-        positions.Add(function.Body.Location.End);
+        Positions.Add(function.Body.Location.End);
 
         return function;
     }
