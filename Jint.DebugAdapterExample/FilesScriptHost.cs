@@ -16,7 +16,9 @@ public class FilesScriptHost : IScriptHost
         {
             options.DebugMode(true)
                 .SetupDebugger()
-                .EnableModules(@"D:\Web\test", false);
+                .EnableModules(
+                    AppContext.BaseDirectory,
+                    restrictToBasePath: false);
         });
     }
 
