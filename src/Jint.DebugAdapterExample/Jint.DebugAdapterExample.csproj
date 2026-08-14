@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <!-- <ProjectReference Include="..\..\Jint\Jint\Jint.csproj" /> -->
-    <PackageReference Include="Jint" Version="4.15.3"/>
+    <PackageReference Include="Jint" />
     <ProjectReference Include="..\Jint.DebugAdapter\Jint.DebugAdapter.csproj" />
   </ItemGroup>
 

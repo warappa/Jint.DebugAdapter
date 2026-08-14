@@ -5,3 +5,4 @@ obj/
 node_modules/
 out/
 *.user
+src/VSCodeExtension/jint-debugger/*.vsix
