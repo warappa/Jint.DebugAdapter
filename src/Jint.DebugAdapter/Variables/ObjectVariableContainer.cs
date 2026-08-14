@@ -9,7 +9,8 @@ public class ObjectVariableContainer : VariableContainer
 {
     protected readonly ObjectInstance instance;
 
-    public ObjectVariableContainer(VariableStore store, int id, ObjectInstance instance) : base(store, id)
+    public ObjectVariableContainer(VariableStore store, int id, ObjectInstance instance)
+        : base(store, id)
     {
         this.instance = instance;
     }
@@ -23,10 +24,13 @@ public class ObjectVariableContainer : VariableContainer
             return value;
         }
 
-        if (prop.Set != null)
+        if (prop.Set is not null)
         {
             instance.Engine.Invoke(prop.Set, value);
-            return instance.Engine.Invoke(prop.Get);
+
+            return prop.Get is not null ?
+                instance.Engine.Invoke(prop.Get) :
+                value;
         }
 
         throw new VariableException($"Property is read only.");
@@ -34,17 +38,21 @@ public class ObjectVariableContainer : VariableContainer
 
     protected override IEnumerable<JintVariable> GetNamedVariables(int? start, int? count)
     {
-        var props = instance.GetOwnProperties();
-        props = props.Concat(GetPrototypeProperties());
+        var props = instance.GetOwnProperties()
+            .Concat(GetPrototypeProperties());
 
         // Return subset/paging
         // TODO: Does this ever happen for anything except arrays in our implementation?
         if (count > 0)
         {
-            props = props.Skip(start ?? 0).Take(count.Value);
+            props = props
+                .Skip(start ?? 0)
+                .Take(count.Value);
         }
 
-        return AddPrototypeIfExists(props.Select(p => CreateVariable(p.Key.ToString(), p.Value, instance)));
+        return AddPrototypeIfExists(
+            props
+                .Select(p => CreateVariable(p.Key.ToString(), p.Value, instance)));
     }
 
     protected override IEnumerable<JintVariable> GetAllVariables(int? start, int? count)
@@ -56,7 +64,7 @@ public class ObjectVariableContainer : VariableContainer
 
     protected IEnumerable<JintVariable> AddPrototypeIfExists(IEnumerable<JintVariable> vars)
     {
-        if (instance.Prototype != null)
+        if (instance.Prototype is not null)
         {
             var prototype = CreateVariable("[[Prototype]]", instance.Prototype);
             // For prototypes, we want the value to display the prototype's constructor ("type") (a la Chromium devtools)
@@ -73,12 +81,12 @@ public class ObjectVariableContainer : VariableContainer
     {
         // TODO: Handle shadowed prototype properties
         var proto = instance.Prototype;
-        while (proto != null && proto is not ObjectConstructor)
+        while (proto is not null && proto is not ObjectConstructor)
         {
             var props = proto.GetOwnProperties();
             foreach (var prop in props)
             {
-                if (prop.Value.Get != null)
+                if (prop.Value.Get is not null)
                 {
                     yield return prop;
                 }

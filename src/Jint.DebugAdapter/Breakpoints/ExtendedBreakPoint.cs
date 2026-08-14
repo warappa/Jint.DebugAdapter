@@ -10,11 +10,17 @@ namespace Jint.DebugAdapter.BreakPoints;
 /// <summary>
 /// Custom breakpoint extensions for this debugger implementation. Adds hit conditions and log points.
 /// </summary>
-public class ExtendedBreakPoint : BreakPoint
+public partial class ExtendedBreakPoint : BreakPoint
 {
-    private static readonly Regex rxHitCondition = new(@"^((?<operator>(?:<=?|>=?|={1,3}|%))\s*)?(?<count>\d+)$");
+    private static readonly Regex rxHitCondition = GetRxHitConditionRegex();
 
-    public ExtendedBreakPoint(string source, int line, int column, string condition = null, string hitCondition = null, string logMessage = null)
+    public ExtendedBreakPoint(
+        string source,
+        int line,
+        int column,
+        string condition = null,
+        string hitCondition = null,
+        string logMessage = null)
         : base(source, line, column, condition)
     {
         HitCondition = ParseHitCondition(hitCondition);
@@ -31,13 +37,16 @@ public class ExtendedBreakPoint : BreakPoint
         {
             return null;
         }
+
         var match = rxHitCondition.Match(condition);
         if (!match.Success)
         {
             throw new FormatException($"Invalid hit condition: {condition}");
         }
 
-        var op = match.Groups["operator"].Success ? match.Groups["operator"].Value : "=";
+        var op = match.Groups["operator"].Success ?
+            match.Groups["operator"].Value :
+            "=";
         var strCount = match.Groups["count"].Value;
 
         if (!int.TryParse(strCount, out var count))
@@ -70,7 +79,7 @@ public class ExtendedBreakPoint : BreakPoint
         void AddLiteral(string value)
         {
             value = HttpUtility.JavaScriptStringEncode(value);
-            parts.Add(new StringLiteral(value, "\"" + value + "\""));
+            parts.Add(new StringLiteral(value, $"\"{value}\""));
         }
 
         // Build a list of string literals (outside braces) and parsed expressions (inside braces):
@@ -82,6 +91,7 @@ public class ExtendedBreakPoint : BreakPoint
                 AddLiteral(message[end..]);
                 break;
             }
+
             AddLiteral(message[end..start]);
 
             var parser = new Parser();
@@ -94,6 +104,7 @@ public class ExtendedBreakPoint : BreakPoint
             {
                 throw new FormatException($"Invalid log point code: {ex.Message}");
             }
+
             end = start + partAst.Range.End;
 
             var code = message[start..end];
@@ -110,7 +121,8 @@ public class ExtendedBreakPoint : BreakPoint
                 throw new FormatException($"Invalid log point code: {code} - not a block");
             }
 
-            if (block.Body.Count != 1 || block.Body[0] is not ExpressionStatement exprStmt)
+            if (block.Body.Count != 1 ||
+                block.Body[0] is not ExpressionStatement exprStmt)
             {
                 throw new FormatException($"Invalid log point code: {code} - not a valid expression.");
             }
@@ -119,26 +131,27 @@ public class ExtendedBreakPoint : BreakPoint
         }
 
         // Combine our parts into a single Script AST:
-        var expr = parts[^1];
+        var expression = parts[^1];
         for (var i = parts.Count - 2; i >= 0; i--)
         {
-            expr = new NonLogicalBinaryExpression("+", parts[i], expr);
+            expression = new NonLogicalBinaryExpression("+", parts[i], expression);
         }
-        var statement = new NonSpecialExpressionStatement(expr);
 
-        var script = new Script(NodeList.From<Statement>(new[] { statement }), strict: true);
+        var statement = new NonSpecialExpressionStatement(expression);
+        var script = new Script(NodeList.From<Statement>([statement]), strict: true);
 
         var prepared = (Prepared<Script>)Activator.CreateInstance(
             typeof(Prepared<Script>),
             script,
             ScriptPreparationOptions.Default.ParsingOptions,
-            null);
+            null)!;
         return prepared;
     }
 
     public Prepared<Script> PrepareDynamicScript(List<string> parts)
     {
-        if (parts == null || parts.Count == 0)
+        if (parts is null ||
+            parts.Count == 0)
         {
             return Engine.PrepareScript("");
         }
@@ -158,4 +171,7 @@ public class ExtendedBreakPoint : BreakPoint
         // Nutzt die offizielle öffentliche Jint 4.15.3 API
         return Engine.PrepareScript(sb.ToString(), null, true, options);
     }
+
+    [GeneratedRegex(@"^((?<operator>(?:<=?|>=?|={1,3}|%))\s*)?(?<count>\d+)$")]
+    private static partial Regex GetRxHitConditionRegex();
 }

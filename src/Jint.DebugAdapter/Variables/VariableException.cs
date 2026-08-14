@@ -2,7 +2,8 @@
 
 public class VariableException : Exception
 {
-    public VariableException(string message) : base(message)
+    public VariableException(string message)
+        : base(message)
     {
     }
 }

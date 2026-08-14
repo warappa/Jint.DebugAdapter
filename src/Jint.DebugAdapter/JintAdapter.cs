@@ -13,20 +13,6 @@ using Thread = Jither.DebugAdapter.Protocol.Types.Thread;
 
 namespace Jint.DebugAdapter;
 
-public class SourceLocation
-{
-    public Position Start { get; }
-    public Position End { get; }
-    public Source Source { get; }
-
-    public SourceLocation(Source source, Position start, Position end)
-    {
-        Source = source;
-        Start = start;
-        End = end;
-    }
-}
-
 public class JintAdapter : Adapter
 {
     private enum AdapterMode
@@ -50,9 +36,11 @@ public class JintAdapter : Adapter
 
     public Console Console { get; }
 
-    public JintAdapter(IScriptHost host, Engine engine, Endpoint endpoint) : base(endpoint)
+    public JintAdapter(IScriptHost host, Engine engine, Endpoint endpoint)
+        : base(endpoint)
     {
         this.host = host;
+
         debugger = new SynchronizingDebugger(engine);
         Console = new Console(this, engine);
         variableStore = new VariableStore();
@@ -67,7 +55,7 @@ public class JintAdapter : Adapter
 
     public void Launch(string program)
     {
-        var task = debugger.LaunchAsync(
+        var launchTask = debugger.LaunchAsync(
             () => host.Launch(program, new Dictionary<string, JsonElement>()),
             debug: true,
             pauseOnEntry: false,
@@ -75,7 +63,7 @@ public class JintAdapter : Adapter
             waitForUI: false);
 
         StartListening();
-        task.Wait();
+        launchTask.Wait();
     }
 
     private void Debugger_Done()
@@ -128,12 +116,30 @@ public class JintAdapter : Adapter
 
         SendEvent(reason switch
         {
-            PauseReason.BreakPoint => new StoppedEvent(StopReason.Breakpoint) { Description = "Hit breakpoint" },
-            PauseReason.Entry => new StoppedEvent(StopReason.Entry) { Description = "Paused on entry" },
-            PauseReason.Exception => new StoppedEvent(StopReason.Exception) { Description = "An error occurred" },
-            PauseReason.Pause => new StoppedEvent(StopReason.Pause) { Description = "Paused by user" },
-            PauseReason.Step => new StoppedEvent(StopReason.Step) { Description = "Paused after step" },
-            PauseReason.DebuggerStatement => new StoppedEvent(StopReason.Breakpoint) { Description = "Hit debugger statement" },
+            PauseReason.BreakPoint => new StoppedEvent(StopReason.Breakpoint)
+            {
+                Description = "Hit breakpoint"
+            },
+            PauseReason.Entry => new StoppedEvent(StopReason.Entry)
+            {
+                Description = "Paused on entry"
+            },
+            PauseReason.Exception => new StoppedEvent(StopReason.Exception)
+            {
+                Description = "An error occurred"
+            },
+            PauseReason.Pause => new StoppedEvent(StopReason.Pause)
+            {
+                Description = "Paused by user"
+            },
+            PauseReason.Step => new StoppedEvent(StopReason.Step)
+            {
+                Description = "Paused after step"
+            },
+            PauseReason.DebuggerStatement => new StoppedEvent(StopReason.Breakpoint)
+            {
+                Description = "Hit debugger statement"
+            },
             _ => throw new NotImplementedException($"DebugAdapter reason not implemented for {reason}")
         });
     }
@@ -163,7 +169,8 @@ public class JintAdapter : Adapter
         SendEvent(new InitializedEvent());
     }
 
-    protected override async Task<BreakpointLocationsResponse> BreakpointLocationsRequest(BreakpointLocationsArguments arguments)
+    protected override async Task<BreakpointLocationsResponse> BreakpointLocationsRequest(
+        BreakpointLocationsArguments arguments)
     {
         var id = host.SourceProvider.GetSourceId(arguments.Source);
 
@@ -197,6 +204,7 @@ public class JintAdapter : Adapter
     protected override async Task<ContinueResponse> ContinueRequest(ContinueArguments arguments)
     {
         debugger.Run();
+
         return new ContinueResponse();
     }
 
@@ -207,11 +215,9 @@ public class JintAdapter : Adapter
         // - If the client explicitly requests termination
         // - If the client DOESN'T specify if we should terminate, but initial request (launch/attach) indicates
         //   that we should.
-        if (
-            arguments.Restart == true ||
+        if (arguments.Restart == true ||
             arguments.TerminateDebuggee == true ||
-            (arguments.TerminateDebuggee == null && mode == AdapterMode.Launch)
-        )
+            (arguments.TerminateDebuggee is null && mode == AdapterMode.Launch))
         {
             restarting = false;
             debugger.Terminate();
@@ -229,6 +235,7 @@ public class JintAdapter : Adapter
             var result = await debugger.EvaluateAsync(arguments.Expression);
 
             var valueInfo = variableStore.CreateValue("", result);
+
             return new EvaluateResponse(valueInfo.Value)
             {
                 Type = valueInfo.Type,
@@ -239,7 +246,8 @@ public class JintAdapter : Adapter
                 MemoryReference = valueInfo.MemoryReference
             };
         }
-        catch (DebugEvaluationException ex) when (ex.InnerException != null)
+        catch (DebugEvaluationException ex)
+            when (ex.InnerException is not null)
         {
             // We want the error to reflect the inner exception, if there is one
             throw ex.InnerException;
@@ -254,6 +262,7 @@ public class JintAdapter : Adapter
     protected override async Task<InitializeResponse> InitializeRequest(InitializeArguments arguments)
     {
         logger.Info($"Connection established from: {arguments.ClientName} ({arguments.ClientId})");
+
         clientLinesStartAt1 = arguments.LinesStartAt1 ?? false;
         clientColumnsStartAt1 = arguments.ColumnsStartAt1 ?? false;
 
@@ -301,7 +310,7 @@ public class JintAdapter : Adapter
 
     protected override async Task<LoadedSourcesResponse> LoadedSourcesRequest()
     {
-        return new LoadedSourcesResponse(new List<Source>());
+        return new LoadedSourcesResponse([]);
     }
 
     protected override async Task NextRequest(NextArguments arguments)
@@ -325,12 +334,15 @@ public class JintAdapter : Adapter
     protected override async Task<ScopesResponse> ScopesRequest(ScopesArguments arguments)
     {
         var frame = currentDebugInformation.CallStack[arguments.FrameId];
-        return new ScopesResponse(frame.ScopeChain.Select(s =>
-            new Scope(s.ScopeType.ToString(),
-            s.ScopeType == DebugScopeType.Local ?
-                variableStore.Add(s, frame) : // For local scope, we include the frame to get "this" and returnval
-                variableStore.Add(s))
-        ));
+
+        return new ScopesResponse(frame.ScopeChain
+            .Select(s =>
+                new Scope(s.ScopeType.ToString(),
+                    s.ScopeType == DebugScopeType.Local
+                        ? variableStore.Add(s, frame)
+                        : // For local scope, we include the frame to get "this" and returnval
+                        variableStore.Add(s))
+            ));
     }
 
     protected override async Task<SetBreakpointsResponse> SetBreakpointsRequest(SetBreakpointsArguments arguments)
@@ -342,15 +354,17 @@ public class JintAdapter : Adapter
         // SetBreakpoints expects us to clear all current breakpoints
         await debugger.ClearBreakPointsAsync();
 
-        List<Breakpoint> results = new();
+        List<Breakpoint> results = [];
         foreach (var breakpoint in arguments.Breakpoints)
         {
             var jintPosition = ToJintPosition(breakpoint.Line, breakpoint.Column);
-            var actualJintPosition = await debugger.SetBreakPointAsync(id, jintPosition, breakpoint.Condition, breakpoint.HitCondition, breakpoint.LogMessage);
+            var actualJintPosition = await debugger.SetBreakPointAsync(id, jintPosition, breakpoint.Condition,
+                breakpoint.HitCondition, breakpoint.LogMessage);
             var actualBreakpoint = new Breakpoint
             {
                 Verified = true
             };
+
             // If requested breakpoint position changed, send back the new position
             if (actualJintPosition != jintPosition)
             {
@@ -358,8 +372,10 @@ public class JintAdapter : Adapter
                 actualBreakpoint.Line = actualLocation.Line;
                 actualBreakpoint.Column = actualLocation.Column;
             }
+
             results.Add(actualBreakpoint);
         }
+
         return new SetBreakpointsResponse(results);
     }
 
@@ -389,7 +405,11 @@ public class JintAdapter : Adapter
     protected override async Task<SourceResponse> SourceRequest(SourceArguments arguments)
     {
         var script = host.SourceProvider.GetContent(arguments.Source);
-        return new SourceResponse(script) { MimeType = "text/javascript" };
+
+        return new SourceResponse(script)
+        {
+            MimeType = "text/javascript"
+        };
     }
 
     protected override async Task<StackTraceResponse> StackTraceRequest(StackTraceArguments arguments)
@@ -400,16 +420,20 @@ public class JintAdapter : Adapter
         // Return subset
         if (arguments.Levels > 0)
         {
-            frames = frames.Skip(arguments.StartFrame ?? 0).Take(arguments.Levels.Value);
+            frames = frames
+                .Skip(arguments.StartFrame ?? 0)
+                .Take(arguments.Levels.Value);
         }
 
-        var result = new List<StackFrame>();
+        List<StackFrame> result = [];
         var index = 0;
+
         foreach (var frame in frames)
         {
             var location = frame.Location;
             var start = ToClientPosition(location.Start);
             var end = ToClientPosition(location.End);
+
             result.Add(new StackFrame(index, frame.FunctionName)
             {
                 Source = new Source
@@ -452,7 +476,7 @@ public class JintAdapter : Adapter
     protected override async Task<ThreadsResponse> ThreadsRequest()
     {
         // "Even if a debug adapter does not support multiple threads, it must implement the threads request and return a single (dummy) thread."
-        return new ThreadsResponse(new List<Thread> { new Thread(1, "Main Thread") });
+        return new ThreadsResponse([new Thread(1, "Main Thread")]);
     }
 
     protected override async Task<VariablesResponse> VariablesRequest(VariablesArguments arguments)
@@ -475,7 +499,7 @@ public class JintAdapter : Adapter
         return Position.From(
             clientLinesStartAt1 ? position.Line : position.Line - 1,
             clientColumnsStartAt1 ? position.Column + 1 : position.Column
-            );
+        );
     }
 
     /// <summary>
@@ -491,7 +515,7 @@ public class JintAdapter : Adapter
         return Position.From(
             clientLinesStartAt1 ? line : line + 1,
             clientColumnsStartAt1 ? column.Value - 1 : column.Value
-            );
+        );
     }
 
     private (Position Start, Position End) ToJintRange(int line, int? column, int? endLine, int? endColumn)

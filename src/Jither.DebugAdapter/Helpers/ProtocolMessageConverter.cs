@@ -21,12 +21,13 @@ internal class ProtocolMessageConverter : JsonConverter<ProtocolMessage>
                 throw new JsonException($"Protocol message type not found");
             }
 
-            string command = null;
-            string evt = null;
+            string? command = null;
+            string? evt = null;
             if (doc.RootElement.TryGetProperty("command", out var commandProp))
             {
                 command = commandProp.GetString();
             }
+
             if (doc.RootElement.TryGetProperty("event", out var evtProp))
             {
                 evt = evtProp.GetString();
@@ -38,10 +39,11 @@ internal class ProtocolMessageConverter : JsonConverter<ProtocolMessage>
             var result = JsonSerializer.Deserialize(jsonObject, type, options) as ProtocolMessage;
 
             // For equal treatment when dealing with argument-less requests, instantiantiate empty arguments object 
-            if (result is IncomingProtocolRequest req && req.UntypedArguments == null)
+            if (result is IncomingProtocolRequest req &&
+                req.UntypedArguments is null)
             {
                 var argumentsType = ProtocolMessageRegistry.GetArgumentsType(command);
-                req.Sanitize(Activator.CreateInstance(argumentsType) as ProtocolArguments);
+                req.Sanitize((ProtocolArguments)Activator.CreateInstance(argumentsType));
             }
 
             return result;

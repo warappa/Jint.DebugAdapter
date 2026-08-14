@@ -1,20 +1,9 @@
-﻿using System.Text.Json.Serialization;
-using Jint.Native;
+﻿using Jint.Native;
 using Jint.Native.Object;
 using Jint.Runtime.Descriptors;
 using Jither.DebugAdapter.Protocol.Types;
 
 namespace Jint.DebugAdapter.Variables;
-
-public class JintVariable : Variable
-{
-    public JintVariable(string name, string value) : base(name, value)
-    {
-    }
-
-    [JsonIgnore]
-    public int SortOrder { get; set; }
-}
 
 public abstract class VariableContainer
 {
@@ -55,9 +44,9 @@ public abstract class VariableContainer
         return CreateVariable(store.CreateValue(name, value));
     }
 
-    protected JintVariable CreateVariable(string name, PropertyDescriptor prop, ObjectInstance owner)
+    protected JintVariable CreateVariable(string name, PropertyDescriptor property, ObjectInstance owner)
     {
-        return CreateVariable(store.CreateValue(name, prop, owner));
+        return CreateVariable(store.CreateValue(name, property, owner));
     }
 
     private JintVariable CreateVariable(ValueInfo valueInfo)

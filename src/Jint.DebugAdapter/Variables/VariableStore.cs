@@ -8,8 +8,9 @@ namespace Jint.DebugAdapter.Variables;
 public class VariableStore
 {
     private readonly ValueInfoProvider infoProvider;
-    private int nextId = 1;
     private readonly Dictionary<int, VariableContainer> containers = new();
+
+    private int nextId = 1;
 
     public VariableStore()
     {
@@ -64,7 +65,7 @@ public class VariableStore
     public ValueInfo SetValue(int variablesReference, string name, JsValue value)
     {
         var container = containers.GetValueOrDefault(variablesReference);
-        if (container == null)
+        if (container is null)
         {
             throw new VariableException($"Unknown parent variables reference: {variablesReference}");
         }

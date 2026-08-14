@@ -10,6 +10,7 @@ public class StdInOutEndpoint : Endpoint
     {
         var input = Console.OpenStandardInput();
         var output = Console.OpenStandardOutput();
+
         InitializeStreams(adapter, input, output);
     }
 }

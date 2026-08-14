@@ -2,26 +2,29 @@
 
 public abstract class StringEnum<T> : IEquatable<T> where T : StringEnum<T>, new()
 {
-    public string EnumValue { get; private set; }
+    public string EnumValue { get; private init; }
     public bool IsCustom { get; private set; }
 
     private static readonly Dictionary<string, T> values = new();
 
     protected StringEnum()
     {
-
     }
 
     protected static T Create(string value)
     {
-        if (value == null)
+        if (value is null)
         {
             return null;
         }
 
         EnsureUnique(value);
 
-        var result = new T() { EnumValue = value, IsCustom = false };
+        var result = new T
+        {
+            EnumValue = value,
+            IsCustom = false
+        };
         values.Add(value, result);
 
         return result;
@@ -29,14 +32,18 @@ public abstract class StringEnum<T> : IEquatable<T> where T : StringEnum<T>, new
 
     public static T Custom(string value)
     {
-        if (value == null)
+        if (value is null)
         {
             return null;
         }
 
         EnsureUnique(value);
 
-        return new T() { EnumValue = value, IsCustom = true };
+        return new T()
+        {
+            EnumValue = value,
+            IsCustom = true
+        };
     }
 
     private static void EnsureUnique(string value)
@@ -56,8 +63,11 @@ public abstract class StringEnum<T> : IEquatable<T> where T : StringEnum<T>, new
     {
         if (!TryParse(value, out var result))
         {
-            throw new ArgumentException($"{value} is not a valid value for the StringEnum {typeof(T).Name}", nameof(value));
+            throw new ArgumentException(
+                $"{value} is not a valid value for the StringEnum {typeof(T).Name}",
+                nameof(value));
         }
+
         return result;
     }
 
@@ -90,6 +100,4 @@ public abstract class StringEnum<T> : IEquatable<T> where T : StringEnum<T>, new
     {
         return !(a?.Equals(b) ?? false);
     }
-
-
 }

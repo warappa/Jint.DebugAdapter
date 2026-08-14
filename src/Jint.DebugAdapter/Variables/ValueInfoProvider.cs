@@ -37,16 +37,14 @@ public class ValueInfoProvider
             Type = RenderType(value)
         };
 
-        ObjectInstance obj;
-
         switch (value)
         {
             case ArrayInstance:
             case JsArguments:
             case JsTypedArray:
-                obj = value as ObjectInstance;
+                var array = (ObjectInstance)value;
                 // Yes, JS supports array length up to 2^32-1, but DAP only supports up to 2^31-1
-                var length = (int)obj.GetLengthValue();
+                var length = (int)array.GetLengthValue();
 
                 if (length > 100)
                 {
@@ -57,10 +55,10 @@ public class ValueInfoProvider
                     result.NamedVariables = 1;
                 }
 
-                result.VariablesReference = store.AddArrayLike(obj);
+                result.VariablesReference = store.AddArrayLike(array);
                 break;
-            case ObjectInstance:
-                result.VariablesReference = store.Add(value as ObjectInstance);
+            case ObjectInstance objectInstance:
+                result.VariablesReference = store.Add(objectInstance);
                 break;
         }
 
@@ -70,23 +68,21 @@ public class ValueInfoProvider
     /// <summary>
     /// Creates ValueInfo for a given property.
     /// </summary>
-    public ValueInfo Create(string name, PropertyDescriptor prop, ObjectInstance owner)
+    public ValueInfo Create(string name, PropertyDescriptor property, ObjectInstance owner)
     {
-        if (prop.Get != null)
+        if (property.Get is not null)
         {
             return new ValueInfo(name)
             {
                 Value = "(...)",
-                Type = RenderType(prop.Get),
+                Type = RenderType(property.Get),
                 PresentationHint = new VariablePresentationHint { Lazy = true },
                 // Add a variable reference for lazy evaluation of the getter
-                VariablesReference = store.Add(prop, owner),
+                VariablesReference = store.Add(property, owner),
             };
         }
-        else
-        {
-            return Create(name, prop.Value);
-        }
+
+        return Create(name, property.Value);
     }
 
     /// <summary>
@@ -109,8 +105,8 @@ public class ValueInfoProvider
             // escaped - but otherwise with minimal escaping for readability.
             JsString => JsonSerializer.Serialize(value.ToString(), stringToJsonOptions),
 
-            JsArguments arr => RenderArrayPreview(arr, string.Empty),
-            ArrayInstance arr => RenderArrayPreview(arr, string.Empty),
+            JsArguments arr => RenderArrayPreview(arr, ""),
+            ArrayInstance arr => RenderArrayPreview(arr, ""),
             JsTypedArray arr => RenderArrayPreview(arr, GetObjectType(arr)),
 
             Function func => $"ƒ {GetFunctionName(func) ?? name}",
@@ -156,9 +152,9 @@ public class ValueInfoProvider
             // Special case - ObjectConstructor has the name "delegate"
             return "Object";
         }
+
         return constructor?.Get("name")?.ToString() ?? "Object";
     }
-
 
     // Intended as possible future extension point
     protected string GetFunctionName(Function func)
@@ -168,11 +164,13 @@ public class ValueInfoProvider
             // Special case - ObjectConstructor has the name "delegate"
             return "Object";
         }
+
         var name = func.GetOwnProperty("name").Value;
         if (!name.IsUndefined())
         {
             return name.ToString();
         }
+
         return null;
     }
 
@@ -193,6 +191,7 @@ public class ValueInfoProvider
             {
                 break;
             }
+
             var value = obj.Get(i);
             propsBuilder.Append(RenderValue(i.ToString(), value));
         }
@@ -213,6 +212,7 @@ public class ValueInfoProvider
             {
                 break;
             }
+
             var value = obj.Get(key);
             propsBuilder.Append(RenderPropertyPreview(key, value));
         }

@@ -8,7 +8,7 @@ namespace Jither.DebugAdapter.Protocol.Responses;
 /// <remarks>
 /// Returned is information about each breakpoint created by this request.
 /// This includes the actual code location and whether the breakpoint could be verified.
-/// </summary>
+/// </remarks>
 public class SetBreakpointsResponse : ProtocolResponseBody
 {
     /// <param name="breakpoints">Information about the breakpoints. The array elements are in the same order

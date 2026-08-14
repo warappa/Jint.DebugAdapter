@@ -2,7 +2,8 @@
 
 public class DebuggerException : Exception
 {
-    public DebuggerException(string message) : base(message)
+    public DebuggerException(string message)
+        : base(message)
     {
     }
 }

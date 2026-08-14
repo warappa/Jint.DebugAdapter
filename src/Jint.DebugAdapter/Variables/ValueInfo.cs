@@ -4,6 +4,11 @@ namespace Jint.DebugAdapter.Variables;
 
 public class ValueInfo
 {
+    public ValueInfo(string name)
+    {
+        Name = name;
+    }
+
     public string Name { get; }
     public string Value { get; set; }
     public string Type { get; set; }
@@ -13,9 +18,4 @@ public class ValueInfo
     public int? IndexedVariables { get; set; }
     public string MemoryReference { get; set; }
     public string EvaluateName { get; set; }
-
-    public ValueInfo(string name)
-    {
-        Name = name;
-    }
 }

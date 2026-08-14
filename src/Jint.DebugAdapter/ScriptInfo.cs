@@ -4,35 +4,21 @@ using Jint.DebugAdapter.BreakPoints;
 
 namespace Jint.DebugAdapter;
 
-public class EsprimaPositionComparer : IComparer<Position>
-{
-    public static readonly EsprimaPositionComparer Default = new();
-
-    public int Compare(Position x, Position y)
-    {
-        if (x.Line != y.Line)
-        {
-            return x.Line - y.Line;
-        }
-        return x.Column - y.Column;
-    }
-}
-
 public class ScriptInfo
 {
-    public Program Ast { get; }
-    public List<Position> BreakPointPositions => field ??= CollectBreakPointPositions();
-
     public ScriptInfo(Program ast)
     {
         Ast = ast;
     }
 
+    public Program Ast { get; }
+    public List<Position> BreakPointPositions => field ??= CollectBreakPointPositions();
+
     public IEnumerable<Position> FindBreakPointPositionsInRange(Position start, Position end)
     {
         var positions = BreakPointPositions;
 
-        var index = positions.BinarySearch(start, EsprimaPositionComparer.Default);
+        var index = positions.BinarySearch(start, AcornimaPositionComparer.Default);
 
         if (index < 0)
         {
@@ -44,7 +30,7 @@ public class ScriptInfo
         {
             var position = positions[index++];
             // We know we're past the start of the range. If we're also past the end, break
-            if (EsprimaPositionComparer.Default.Compare(position, end) > 0)
+            if (AcornimaPositionComparer.Default.Compare(position, end) > 0)
             {
                 break;
             }
@@ -56,12 +42,13 @@ public class ScriptInfo
     public Position FindNearestBreakPointPosition(Position position)
     {
         var positions = BreakPointPositions;
-        var index = positions.BinarySearch(position, EsprimaPositionComparer.Default);
+        var index = positions.BinarySearch(position, AcornimaPositionComparer.Default);
         if (index < 0)
         {
             // Get the first break after the location
             index = ~index;
         }
+
         return positions[index];
     }
 
@@ -69,10 +56,15 @@ public class ScriptInfo
     {
         var collector = new BreakPointCollector();
         collector.Visit(Ast);
+
         // Some statements may be at the same location
-        var list = collector.Positions.Distinct().ToList();
+        var list = collector.Positions
+            .Distinct()
+            .ToList();
+
         // We need the list sorted (it's going to be used for binary search)
-        list.Sort(EsprimaPositionComparer.Default);
+        list.Sort(AcornimaPositionComparer.Default);
+
         return list;
     }
 }

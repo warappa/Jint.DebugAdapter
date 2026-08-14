@@ -6,12 +6,13 @@ namespace Jint.DebugAdapter.Variables;
 
 public class PropertyVariableContainer : VariableContainer
 {
-    private readonly PropertyDescriptor prop;
+    private readonly PropertyDescriptor property;
     private readonly ObjectInstance owner;
 
-    public PropertyVariableContainer(VariableStore store, int id, PropertyDescriptor prop, ObjectInstance owner) : base(store, id)
+    public PropertyVariableContainer(VariableStore store, int id, PropertyDescriptor property, ObjectInstance owner)
+        : base(store, id)
     {
-        this.prop = prop;
+        this.property = property;
         this.owner = owner;
     }
 
@@ -23,6 +24,6 @@ public class PropertyVariableContainer : VariableContainer
 
     protected override IEnumerable<JintVariable> GetAllVariables(int? start, int? count)
     {
-        return new[] { CreateVariable(string.Empty, owner.Engine.Invoke(prop.Get, owner, Array.Empty<object>())) };
+        return [CreateVariable(string.Empty, owner.Engine.Invoke(property.Get!, owner, []))];
     }
 }

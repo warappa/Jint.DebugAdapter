@@ -5,16 +5,16 @@ public class BudgetStringBuilder
 {
     private const string ellipsis = "…";
     private readonly List<string> tokens = new();
-    private int _budget;
+    private int budget;
     private readonly string separator;
 
-    public int Budget => _budget - (tokens.Count > 0 ? separator.Length : 0);
+    public int Budget => budget - (tokens.Count > 0 ? separator.Length : 0);
     public bool IsEmpty => tokens.Count == 0;
 
     public BudgetStringBuilder(int budget, string separator = "")
     {
         this.separator = separator;
-        _budget = budget - 1 - this.separator.Length;
+        this.budget = budget - 1 - this.separator.Length;
     }
 
     public void Append(string text)
@@ -24,6 +24,7 @@ public class BudgetStringBuilder
             AppendEllipsis();
             return;
         }
+
         InternalAppend(text);
     }
 
@@ -31,10 +32,10 @@ public class BudgetStringBuilder
     {
         if (tokens.Count > 0)
         {
-            _budget -= separator.Length;
+            budget -= separator.Length;
         }
         tokens.Add(text);
-        _budget -= text.Length;
+        budget -= text.Length;
     }
 
     public void AppendEllipsis()
@@ -47,11 +48,12 @@ public class BudgetStringBuilder
 
     public bool CheckBudget()
     {
-        if (_budget <= 0)
+        if (budget <= 0)
         {
             AppendEllipsis();
         }
-        return _budget > 0;
+
+        return budget > 0;
     }
 
     public override string ToString()

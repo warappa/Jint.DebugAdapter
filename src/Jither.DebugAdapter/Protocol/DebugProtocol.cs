@@ -11,18 +11,11 @@ using Jither.DebugAdapter.Protocol.Responses;
 
 namespace Jither.DebugAdapter.Protocol;
 
-internal interface IPendingRequest
-{
-    bool Cancelled { get; }
-    void Cancel();
-    ProtocolRequest Request { get; }
-}
-
-public class DebugProtocol
+public partial class DebugProtocol
 {
     private readonly Logger logger = LogManager.GetLogger();
 
-    private static readonly Regex rxContentLength = new(@"^.*?Content-Length: (?<length>\d+)\r\n\r\n", RegexOptions.Compiled | RegexOptions.Singleline);
+    private static readonly Regex rxContentLength = GetRxContentLength();
 
     private readonly Adapter adapter;
     private readonly Stream inputStream;
@@ -40,7 +33,14 @@ public class DebugProtocol
     private readonly Queue<byte[]> messageQueueOut = new();
     private readonly ConcurrentQueue<ProtocolEvent> eventQueue = new();
 
-    private int _nextSeq = 0;
+    private int nextSeq = 0;
+
+    public DebugProtocol(Adapter adapter, Stream inputStream, Stream outputStream)
+    {
+        this.adapter = adapter;
+        this.inputStream = inputStream;
+        this.outputStream = Stream.Synchronized(outputStream); // Make sure only one thread is writing to output at once
+    }
 
     // syncOutput should be locked when accessing IsSending
     private bool IsSending
@@ -78,13 +78,6 @@ public class DebugProtocol
         }
     }
 
-    public DebugProtocol(Adapter adapter, Stream inputStream, Stream outputStream)
-    {
-        this.adapter = adapter;
-        this.inputStream = inputStream;
-        this.outputStream = Stream.Synchronized(outputStream); // Make sure only one thread is writing to output at once
-    }
-
     public async Task StartAsync()
     {
         var pipe = new Pipe();
@@ -112,6 +105,7 @@ public class DebugProtocol
                 {
                     break;
                 }
+
                 writer.Advance(bytesRead);
             }
             catch (OperationCanceledException)
@@ -159,6 +153,7 @@ public class DebugProtocol
                     {
                         break;
                     }
+
                     nextMessageBodyLength = ProcessHeader(header);
                 }
                 else
@@ -167,10 +162,12 @@ public class DebugProtocol
                     {
                         break;
                     }
+
                     await ProcessBody(body);
                     nextMessageBodyLength = -1;
                 }
             }
+
             reader.AdvanceTo(buffer.Start, buffer.End);
 
             // Checking ReadResult.IsCompleted and exiting the reading logic before processing the buffer results in data loss.
@@ -180,6 +177,7 @@ public class DebugProtocol
                 break;
             }
         }
+
         await reader.CompleteAsync()
             .ConfigureAwait(continueOnCapturedContext: false);
     }
@@ -189,7 +187,7 @@ public class DebugProtocol
         // We're assuming that the header is actually ASCII - no UTF-8 sequences (which might include a byte 0x0d that's not a CR)
         // Find next occurrence of CR
         var newlinePosition = buffer.PositionOf((byte)'\r');
-        if (newlinePosition == null)
+        if (newlinePosition is null)
         {
             header = default;
             return false;
@@ -207,7 +205,10 @@ public class DebugProtocol
         var newlinesSpan = newlinesBuffer.ToSpan();
 
         // Check that those 4 bytes are two CR+LF = end of header
-        if (newlinesSpan[0] != (byte)'\r' || newlinesSpan[1] != (byte)'\n' || newlinesSpan[2] != (byte)'\r' || newlinesSpan[3] != (byte)'\n')
+        if (newlinesSpan[0] != (byte)'\r' ||
+            newlinesSpan[1] != (byte)'\n' ||
+            newlinesSpan[2] != (byte)'\r' ||
+            newlinesSpan[3] != (byte)'\n')
         {
             header = default;
             return false;
@@ -216,6 +217,7 @@ public class DebugProtocol
         var headerEndPosition = buffer.GetPosition(4, newlinePosition.Value);
         header = buffer.Slice(0, headerEndPosition);
         buffer = buffer.Slice(headerEndPosition);
+
         return true;
     }
 
@@ -270,8 +272,10 @@ public class DebugProtocol
             {
                 return;
             }
+
             isHandlingError = true;
         }
+
         logger.Error($"Fatal error - stopping. {ex.Message}");
         Stop();
     }
@@ -305,6 +309,7 @@ public class DebugProtocol
             {
                 IsQueueingEvents = false;
             }
+
             var responseBody = await adapter.HandleRequest(request);
 
             BuildAndSendResponse(request, responseBody, true);
@@ -325,7 +330,11 @@ public class DebugProtocol
         }
     }
 
-    private void BuildAndSendResponse(BaseProtocolRequest request, ProtocolResponseBody body, bool success, string message = null)
+    private void BuildAndSendResponse(
+        BaseProtocolRequest request,
+        ProtocolResponseBody body,
+        bool success,
+        string message = null)
     {
         var response = new ProtocolResponse(request.Command, request.Seq, success, body, message);
         SendMessage(response);
@@ -355,6 +364,7 @@ public class DebugProtocol
         lock (cts)
         {
             cts.Cancel();
+
             try
             {
                 CancelAllPendingRequests();
@@ -385,7 +395,9 @@ public class DebugProtocol
 
             if (exceptionList.Count > 0)
             {
-                throw new ProtocolException("Exceptions while cancelling requests", new AggregateException(exceptionList));
+                throw new ProtocolException(
+                    "Exceptions while cancelling requests",
+                    new AggregateException(exceptionList));
             }
         }
     }
@@ -394,7 +406,8 @@ public class DebugProtocol
     {
         lock (pendingRequests)
         {
-            if (!isRunning || CancellationToken.IsCancellationRequested)
+            if (!isRunning ||
+                CancellationToken.IsCancellationRequested)
             {
                 request.Cancel();
             }
@@ -408,7 +421,8 @@ public class DebugProtocol
 
     internal void SendEvent(ProtocolEvent evt)
     {
-        if (IsQueueingEvents && evt.Body is not OutputEvent)
+        if (IsQueueingEvents &&
+            evt.Body is not OutputEvent)
         {
             eventQueue.Enqueue(evt);
         }
@@ -424,6 +438,7 @@ public class DebugProtocol
         {
             message.Seq = GenerateNextSeq();
         }
+
         // Interpolation for lazy serialization
         logger.Log(LogLevel.Verbose, $"{JsonHelper.SerializeForOutput(message)}");
 
@@ -443,6 +458,7 @@ public class DebugProtocol
             {
                 return;
             }
+
             IsSending = true;
             Task.Run(() => SendQueuedMessages());
         }
@@ -455,6 +471,7 @@ public class DebugProtocol
             SendMessage(result);
         }
     }
+
     private void SendQueuedMessages()
     {
         while (!CancellationToken.IsCancellationRequested)
@@ -467,8 +484,10 @@ public class DebugProtocol
                     IsSending = false;
                     return;
                 }
+
                 buffer = messageQueueOut.Dequeue();
             }
+
             try
             {
                 outputStream.Write(buffer, 0, buffer.Length);
@@ -480,14 +499,17 @@ public class DebugProtocol
                 {
                     IsSending = false;
                 }
+
                 HandleFatalError(ex);
                 if (Debugger.IsAttached)
                 {
                     throw;
                 }
+
                 return;
             }
         }
+
         lock (syncOutput)
         {
             IsSending = false;
@@ -496,6 +518,9 @@ public class DebugProtocol
 
     private int GenerateNextSeq()
     {
-        return Interlocked.Increment(ref _nextSeq);
+        return Interlocked.Increment(ref nextSeq);
     }
+
+    [GeneratedRegex(@"^.*?Content-Length: (?<length>\d+)\r\n\r\n", RegexOptions.Compiled | RegexOptions.Singleline)]
+    private static partial Regex GetRxContentLength();
 }

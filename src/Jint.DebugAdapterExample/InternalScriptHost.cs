@@ -41,10 +41,11 @@ main()"
     public void Launch(string program, IReadOnlyDictionary<string, JsonElement> arguments)
     {
         var script = scriptsBySourceId.GetValueOrDefault(program);
-        if (script == null)
+        if (script is null)
         {
             throw new Exception($"Unknown script: {program}");
         }
+
         Engine.Execute(script, program);
     }
 }

@@ -8,23 +8,24 @@ namespace Jint.DebugAdapter.Variables;
 
 public class ArrayLikeVariableContainer : ObjectVariableContainer
 {
-    public ArrayLikeVariableContainer(VariableStore store, int id, ObjectInstance instance) : base(store, id, instance)
+    public ArrayLikeVariableContainer(VariableStore store, int id, ObjectInstance instance)
+        : base(store, id, instance)
     {
     }
 
     public override JsValue SetVariable(string name, JsValue value)
     {
-        var prop = instance.GetOwnProperty(name);
-        if (prop.Writable)
+        var property = instance.GetOwnProperty(name);
+        if (property.Writable)
         {
-            prop.Value = value;
+            property.Value = value;
             return value;
         }
 
-        if (prop.Set != null)
+        if (property.Set is not null)
         {
-            instance.Engine.Invoke(prop.Set, value);
-            return instance.Engine.Invoke(prop.Get);
+            instance.Engine.Invoke(property.Set, value);
+            return instance.Engine.Invoke(property.Get);
         }
 
         throw new VariableException($"Property is read only.");
@@ -32,13 +33,18 @@ public class ArrayLikeVariableContainer : ObjectVariableContainer
 
     protected override IEnumerable<JintVariable> GetAllVariables(int? start, int? count)
     {
-        var result = GetNamedVariables(null, 0).Concat(GetIndexedVariables(null, 0));
+        var result = GetNamedVariables(null, 0)
+            .Concat(GetIndexedVariables(null, 0));
+
         // Return subset
         // TODO: Does this ever happen? Unfiltered variables being paged?
         if (count > 0)
         {
-            result = result.Skip(start ?? 0).Take(count.Value);
+            result = result
+                .Skip(start ?? 0)
+                .Take(count.Value);
         }
+
         return result;
     }
 
@@ -51,7 +57,8 @@ public class ArrayLikeVariableContainer : ObjectVariableContainer
             _ => GetArrayIndexValues(start, count)
         };
 
-        return items.Select(i => CreateVariable(i.Key, i.Value));
+        return items
+            .Select(i => CreateVariable(i.Key, i.Value));
     }
 
     private IEnumerable<KeyValuePair<string, JsValue>> GetArrayIndexValues(int? start, int? count)
@@ -65,29 +72,38 @@ public class ArrayLikeVariableContainer : ObjectVariableContainer
 
         // We can assume that array indices are the first Length properties returned by GetOwnProperties
         // https://tc39.es/ecma262/#sec-ordinaryownpropertykeys
-        var items = instance.GetOwnProperties();
+        var ownProperties = instance.GetOwnProperties();
         if (start > 0)
         {
-            items = items.Skip(start.Value);
+            ownProperties = ownProperties.Skip(start.Value);
         }
-        return items.Take(length).Select(kv => KeyValuePair.Create(kv.Key.ToString(), kv.Value.Value));
+
+        return ownProperties
+            .Take(length)
+            .Select(p => KeyValuePair.Create(p.Key.ToString(), p.Value.Value));
     }
 
     private IEnumerable<KeyValuePair<string, JsValue>> GetArgumentsArrayIndexValues(int? start, int? count)
     {
         // Unlike Array instances, we CAN'T assume order of properties on Arguments.
         // So, we check if each property key is an array index.
-        var result = instance.GetOwnProperties().Where(p => IsArrayIndex(p.Key));
+        var arrayIndices = instance.GetOwnProperties()
+            .Where(p => IsArrayIndex(p.Key));
+
         if (count > 0)
         {
-            result = result.Skip(start ?? 0).Take(count.Value);
+            arrayIndices = arrayIndices
+                .Skip(start ?? 0)
+                .Take(count.Value);
         }
-        return result.Select(kv => KeyValuePair.Create(kv.Key.ToString(), kv.Value.Value));
+
+        return arrayIndices
+            .Select(p => KeyValuePair.Create(p.Key.ToString(), p.Value.Value));
     }
 
     private IEnumerable<KeyValuePair<string, JsValue>> GetTypedArrayIndexValues(int? start, int? count)
     {
-        var arr = instance as JsTypedArray;
+        var arr = (JsTypedArray)instance;
 
         var length = (int)arr.Length;
         if (count > 0)
@@ -100,6 +116,7 @@ public class ArrayLikeVariableContainer : ObjectVariableContainer
         {
             list.Add(KeyValuePair.Create(i.ToString(), arr[i]));
         }
+
         return list;
     }
 
@@ -110,7 +127,8 @@ public class ArrayLikeVariableContainer : ObjectVariableContainer
 
         // We can assume that array indices are the first Length properties returned by GetOwnProperties
         // https://tc39.es/ecma262/#sec-ordinaryownpropertykeys
-        return instance.GetOwnProperties().Skip(length);
+        return instance.GetOwnProperties()
+            .Skip(length);
     }
 
     private IEnumerable<KeyValuePair<JsValue, PropertyDescriptor>> GetTypedArrayProperties()
@@ -123,7 +141,8 @@ public class ArrayLikeVariableContainer : ObjectVariableContainer
     {
         // Unlike Array instances, we CAN'T assume the order of properties on Arguments.
         // So, we're checking if each property is a valid array index.
-        return instance.GetOwnProperties().Where(p => !IsArrayIndex(p.Key));
+        return instance.GetOwnProperties()
+            .Where(p => !IsArrayIndex(p.Key));
     }
 
     protected override IEnumerable<JintVariable> GetNamedVariables(int? start, int? count)
@@ -139,10 +158,14 @@ public class ArrayLikeVariableContainer : ObjectVariableContainer
 
         if (count > 0)
         {
-            props = props.Skip(start ?? 0).Take(count.Value);
+            props = props
+                .Skip(start ?? 0)
+                .Take(count.Value);
         }
 
-        return AddPrototypeIfExists(props.Select(p => CreateVariable(p.Key.ToString(), p.Value, instance)));
+        return AddPrototypeIfExists(
+            props
+                .Select(p => CreateVariable(p.Key.ToString(), p.Value, instance)));
     }
 
     private static bool IsArrayIndex(JsValue value)
@@ -151,7 +174,9 @@ public class ArrayLikeVariableContainer : ObjectVariableContainer
         {
             var numValue = value.AsNumber();
             var intValue = (uint)numValue;
-            return numValue == intValue && intValue != uint.MaxValue;
+
+            return numValue == intValue &&
+                intValue != uint.MaxValue;
         }
 
         // TODO: Handle numeric string

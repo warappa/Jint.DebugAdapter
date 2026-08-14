@@ -7,7 +7,7 @@
 /// These targets can be used in the ‘stepIn’ request.
 /// 
 /// Clients should only call this request if the capability ‘supportsStepInTargetsRequest’ is true.
-/// </summary>
+/// </remarks>
 public class StepInTargetsArguments : ProtocolArguments
 {
     /// <summary>

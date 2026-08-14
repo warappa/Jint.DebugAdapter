@@ -12,6 +12,7 @@ public static class BufferExtensions
         {
             return buffer.FirstSpan;
         }
+
         return buffer.ToArray();
     }
 }

@@ -8,7 +8,8 @@ public class ScopeVariableContainer : VariableContainer
     private readonly DebugScope scope;
     private readonly CallFrame frame;
 
-    public ScopeVariableContainer(VariableStore store, int id, DebugScope scope, CallFrame frame) : base(store, id)
+    public ScopeVariableContainer(VariableStore store, int id, DebugScope scope, CallFrame frame)
+        : base(store, id)
     {
         this.scope = scope;
         this.frame = frame;
@@ -31,9 +32,9 @@ public class ScopeVariableContainer : VariableContainer
     {
         IEnumerable<JintVariable> EnumerateVariables()
         {
-            if (frame != null)
+            if (frame is not null)
             {
-                if (frame.ReturnValue != null)
+                if (frame.ReturnValue is not null)
                 {
                     var result = CreateVariable("Return value", frame.ReturnValue);
                     yield return result;
@@ -53,7 +54,9 @@ public class ScopeVariableContainer : VariableContainer
 
         if (count > 0)
         {
-            result = result.Skip(start ?? 0).Take(count.Value);
+            result = result
+                .Skip(start ?? 0)
+                .Take(count.Value);
         }
 
         return result;

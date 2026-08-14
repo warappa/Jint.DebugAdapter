@@ -26,7 +26,7 @@ public class Console
     {
         if (!TypeConverter.ToBoolean(assertion))
         {
-            Error(new JsValue[] { "Assertion failed:" }.Concat(values).ToArray());
+            Error(["Assertion failed:", .. values]);
         }
     }
 
@@ -44,8 +44,10 @@ public class Console
         {
             count = 0;
         }
+
         count++;
         counters[label] = count;
+
         Log($"{label}: {count}");
     }
 
@@ -158,7 +160,7 @@ public class Console
 
     internal void Send(OutputCategory category, string message, OutputGroup group = null)
     {
-        InternalSend(category, message + "\n", group);
+        InternalSend(category, $"{message}\n", group);
     }
 
     private void InternalSend(OutputCategory category, string message, OutputGroup group = null)
@@ -169,7 +171,7 @@ public class Console
 
         // We're on the engine thread, so we're free to call it directly
         var engineLocation = engine.Debugger.CurrentLocation;
-        if (engineLocation != null)
+        if (engineLocation is not null)
         {
             location = engineLocation.Value; //adapter.ToClientSourceLocation(engineLocation.Value);
         }
@@ -181,7 +183,9 @@ public class Console
             Column = location?.Start.Column,
             Source = new Source
             {
-                Name = location is not null ? Path.GetFileName(location.Value.SourceFile) : "<unknown>",
+                Name = location is not null ?
+                    Path.GetFileName(location.Value.SourceFile) :
+                    "<unknown>",
                 Path = location?.SourceFile
             },
             Group = group

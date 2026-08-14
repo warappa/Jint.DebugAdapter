@@ -29,6 +29,7 @@ public class InternalSourceProvider : ISourceProvider
         var reference = new SourceReference(name, sourceId, referenceId, script);
         referencesBySourceId.Add(sourceId, reference);
         referencesByRefId.Add(referenceId, reference);
+
         return referenceId;
     }
 
@@ -42,6 +43,7 @@ public class InternalSourceProvider : ISourceProvider
                 SourceReference = result.Reference
             };
         }
+
         // For now, if we don't find a reference, we assume it's a file system source
         return new Source
         {
@@ -66,15 +68,17 @@ public class InternalSourceProvider : ISourceProvider
         {
             throw new ArgumentException($"Attempt to get script content, but reference wasn't provided.");
         }
+
         return GetReference(source).Script;
     }
 
     private SourceReference GetReference(Source source)
     {
-        if (!referencesByRefId.TryGetValue(source.SourceReference.Value, out var reference))
+        if (!referencesByRefId.TryGetValue(source.SourceReference!.Value, out var reference))
         {
             throw new ArgumentException($"Unknown source for source reference {source.SourceReference}");
         }
+
         return reference;
     }
 }

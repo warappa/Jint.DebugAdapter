@@ -5,11 +5,7 @@ namespace Jint.DebugAdapter.BreakPoints;
 
 public class BreakPointCollector : AstVisitor
 {
-    public List<Position> Positions { get; } = new();
-
-    public BreakPointCollector()
-    {
-    }
+    public List<Position> Positions { get; } = [];
 
     public override object Visit(Node node)
     {
@@ -17,6 +13,7 @@ public class BreakPointCollector : AstVisitor
         {
             Positions.Add(node.Location.Start);
         }
+
         base.Visit(node);
 
         return node;
@@ -53,11 +50,12 @@ public class BreakPointCollector : AstVisitor
     {
         base.VisitForStatement(forStatement);
 
-        if (forStatement.Test != null)
+        if (forStatement.Test is not null)
         {
             Positions.Add(forStatement.Test.Location.Start);
         }
-        if (forStatement.Update != null)
+
+        if (forStatement.Update is not null)
         {
             Positions.Add(forStatement.Update.Location.Start);
         }

@@ -8,11 +8,6 @@ public class ErrorResponse : ProtocolResponseBody
 
     public Message Error { get; set; }
 
-    public ErrorResponse()
-    {
-
-    }
-
     public ErrorResponse(Exception ex)
     {
         Error = new Message(NextId, ex.Message);

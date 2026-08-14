@@ -16,9 +16,11 @@ public class TcpEndpoint : Endpoint
     {
         var listener = new TcpListener(IPAddress.Loopback, port);
         listener.Start();
+
         logger.Info($"Listening on {listener.LocalEndpoint}");
         var client = listener.AcceptTcpClient();
         var stream = client.GetStream();
+
         InitializeStreams(adapter, stream, stream);
     }
 }

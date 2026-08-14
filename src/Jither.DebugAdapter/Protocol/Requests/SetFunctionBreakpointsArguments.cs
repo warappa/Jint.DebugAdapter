@@ -10,7 +10,6 @@ namespace Jither.DebugAdapter.Protocol.Requests;
 /// When a function breakpoint is hit, a ‘stopped’ event (with reason ‘function breakpoint’) is generated.
 /// Clients should only call this request if the capability ‘supportsFunctionBreakpoints’ is true.
 /// </remarks>
-/// </summary>
 public class SetFunctionBreakpointsArguments : ProtocolArguments
 {
     /// <summary>

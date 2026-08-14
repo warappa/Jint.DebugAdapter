@@ -9,7 +9,7 @@ namespace Jither.DebugAdapter.Protocol.Requests;
 /// Clients should only call this request if the capability ‘supportsSetVariable’ is true.
 /// If a debug adapter implements both setVariable and setExpression, a client will only use setExpression if
 /// the variable has an evaluateName property.
-/// </summary>
+/// </remarks>
 public class SetVariableArguments : ProtocolArguments
 {
     /// <summary>

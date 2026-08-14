@@ -3,7 +3,7 @@ using Jint.DebugAdapterExample;
 using Jither.DebugAdapter;
 using Jither.DebugAdapter.Helpers;
 
-Dictionary<string, Action<Options>> DemosById = new()
+var demosById = new Dictionary<string, Action<AppOptions>>
 {
     ["files"] = DemoFiles,
     ["internal"] = DemoInternal,
@@ -13,8 +13,8 @@ Dictionary<string, Action<Options>> DemosById = new()
 LogManager.Level = LogLevel.Verbose;
 LogManager.Provider = new ConsoleLogProvider();
 
-var options = new Options(args, DemosById);
-var demo = DemosById[options.DemoId];
+var options = new AppOptions(args, demosById);
+var demo = demosById[options.DemoId];
 
 demo(options);
 
@@ -22,7 +22,7 @@ return 0;
 
 static Endpoint CreateEndpoint(string? endpoint)
 {
-    if (endpoint == null)
+    if (endpoint is null)
     {
         return new StdInOutEndpoint();
     }
@@ -30,12 +30,13 @@ static Endpoint CreateEndpoint(string? endpoint)
     {
         return new TcpEndpoint(port);
     }
+
     return new NamedPipeEndpoint(endpoint);
 }
 
-static void DemoFiles(Options options)
+static void DemoFiles(AppOptions appOptions)
 {
-    var endpoint = CreateEndpoint(options.Endpoint);
+    var endpoint = CreateEndpoint(appOptions.Endpoint);
 
     var host = new FilesScriptHost();
     var adapter = new JintAdapter(host, host.Engine, endpoint);
@@ -44,9 +45,9 @@ static void DemoFiles(Options options)
     adapter.StartListening();
 }
 
-static void DemoInternal(Options options)
+static void DemoInternal(AppOptions appOptions)
 {
-    var endpoint = CreateEndpoint(options.Endpoint);
+    var endpoint = CreateEndpoint(appOptions.Endpoint);
 
     var host = new InternalScriptHost();
     var adapter = new JintAdapter(host, host.Engine, endpoint);
@@ -55,32 +56,13 @@ static void DemoInternal(Options options)
     adapter.StartListening();
 }
 
-static void DemoRunning(Options options)
+static void DemoRunning(AppOptions appOptions)
 {
-    var endpoint = CreateEndpoint(options.Endpoint);
+    var endpoint = CreateEndpoint(appOptions.Endpoint);
 
     var host = new RunningScriptHost();
     var adapter = new JintAdapter(host, host.Engine, endpoint);
     host.RegisterConsole(adapter.Console);
 
     adapter.Launch("scripts/index.js");
-}
-
-public class Options
-{
-    public string DemoId { get; } = "files";
-    public string? Endpoint { get; }
-
-    public Options(string[] args, Dictionary<string, Action<Options>> DemosById)
-    {
-        foreach (var arg in args)
-        {
-            if (DemosById.ContainsKey(arg))
-            {
-                DemoId = arg;
-                continue;
-            }
-            Endpoint = arg;
-        }
-    }
 }

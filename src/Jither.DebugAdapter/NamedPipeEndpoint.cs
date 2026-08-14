@@ -16,6 +16,7 @@ public class NamedPipeEndpoint : Endpoint
         using (var namedPipe = new NamedPipeServerStream(name, PipeDirection.InOut))
         {
             namedPipe.WaitForConnection();
+
             InitializeStreams(adapter, namedPipe, namedPipe);
         }
     }

@@ -20,7 +20,7 @@ public class OutputCategory : StringEnum<OutputCategory>
     /// <remarks>
     /// This category should only be used for important messages from the debugger (as opposed to the debuggee).
     /// Since this category value is a hint, clients might ignore the hint and assume the 'console' category.
-    /// </summary>
+    /// </remarks>
     public static readonly OutputCategory Important = Create("important");
 
     /// <summary>

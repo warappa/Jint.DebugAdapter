@@ -10,97 +10,6 @@ namespace Jint.DebugAdapter;
 
 internal class SynchronizingDebugger
 {
-    private abstract class BaseMessage
-    {
-        public static readonly ContinueMessage Continue = new();
-        public bool ShouldContinue { get; protected set; }
-
-        public abstract void Invoke();
-    }
-
-    private class ContinueMessage : BaseMessage
-    {
-        public ContinueMessage()
-        {
-            ShouldContinue = true;
-        }
-
-        public override void Invoke()
-        {
-            // Do nothing
-        }
-    }
-
-    private class Message<T> : BaseMessage
-    {
-        private readonly Func<T> action;
-        private readonly TaskCompletionSource<T> tcs = new();
-
-        public Task<T> Result => tcs.Task;
-
-        public Message(Func<T> action)
-        {
-            this.action = action;
-        }
-
-        public override void Invoke()
-        {
-            try
-            {
-                var result = action();
-                tcs.SetResult(result);
-            }
-            catch (Exception ex)
-            {
-                tcs.SetException(ex);
-            }
-        }
-    }
-
-    private class Message : BaseMessage
-    {
-        private readonly Action action;
-
-        private readonly TaskCompletionSource tcs = new();
-
-        public Task Result => tcs.Task;
-
-        public Message(Action action)
-        {
-            this.action = action;
-        }
-
-        public override void Invoke()
-        {
-            try
-            {
-                action();
-                tcs.SetResult();
-            }
-            catch (Exception ex)
-            {
-                tcs.SetException(ex);
-            }
-        }
-    }
-
-    public delegate void DebugLogMessageEventHandler(string message, DebugInformation info);
-    public delegate void DebugPauseEventHandler(PauseReason reason, DebugInformation info);
-    public delegate void DebugEventHandler();
-    public delegate void DebugExceptionEventHandler(Exception ex);
-
-    private enum DebuggerState
-    {
-        WaitingForClient,
-        WaitingForUI,
-        Entering,
-        Running,
-        Pausing,
-        Stepping,
-        Terminating,
-        Terminated
-    }
-
     private readonly Dictionary<string, ScriptInfo> scriptInfoBySourceId = new();
     private readonly Engine engine;
     private readonly CancellationTokenSource cts = new();
@@ -109,15 +18,12 @@ internal class SynchronizingDebugger
     private StepMode nextStep;
     private DebuggerState state;
     private bool pauseOnEntry;
-    private long _isAttached;
+    private long isAttached;
 
-    public bool IsAttached
+    public SynchronizingDebugger(Engine engine)
     {
-        get => Interlocked.Read(ref _isAttached) == 1;
-        private set
-        {
-            Interlocked.CompareExchange(ref _isAttached, value ? 1 : 0, value ? 0 : 1);
-        }
+        this.engine = engine;
+        engineThreadId = Environment.CurrentManagedThreadId;
     }
 
     public event DebugLogMessageEventHandler LogPoint;
@@ -127,13 +33,21 @@ internal class SynchronizingDebugger
     public event DebugEventHandler Done;
     public event DebugExceptionEventHandler Error;
 
-    public SynchronizingDebugger(Engine engine)
+    public delegate void DebugLogMessageEventHandler(string message, DebugInformation info);
+    public delegate void DebugPauseEventHandler(PauseReason reason, DebugInformation info);
+    public delegate void DebugEventHandler();
+    public delegate void DebugExceptionEventHandler(Exception ex);
+
+    public bool IsAttached
     {
-        this.engine = engine;
-        engineThreadId = Environment.CurrentManagedThreadId;
+        get => Interlocked.Read(ref isAttached) == 1;
+        private set
+        {
+            Interlocked.CompareExchange(ref isAttached, value ? 1 : 0, value ? 0 : 1);
+        }
     }
 
-    public async Task<Acornima.SourceLocation?> GetCurrentLocationAsync()
+    public async Task<SourceLocation?> GetCurrentLocationAsync()
     {
         return await InvokeAsync(() => engine?.Debugger.CurrentLocation);
     }
@@ -153,6 +67,7 @@ internal class SynchronizingDebugger
         {
             Post(() => Pause());
         }
+
         InternalAttach();
     }
 
@@ -161,9 +76,11 @@ internal class SynchronizingDebugger
         this.pauseOnEntry = pauseOnEntry;
 
         var launchCompleted = new TaskCompletionSource();
+
         void HandleParsed(object sender, Program ast)
         {
             EnsureOnEngineThread();
+
             engine.Debugger.BeforeEvaluate -= HandleParsed;
             launchCompleted.SetResult();
 
@@ -180,11 +97,13 @@ internal class SynchronizingDebugger
             if (debug)
             {
                 AddEventHandlers();
+
                 if (attach)
                 {
                     InternalAttach();
                 }
             }
+
             try
             {
                 engine.Debugger.BeforeEvaluate += HandleParsed;
@@ -278,14 +197,20 @@ internal class SynchronizingDebugger
         await InvokeAsync(() => engine.Debugger.BreakPoints.Clear());
     }
 
-    public async Task<Position> SetBreakPointAsync(string sourceId, Position position, string condition = null, string hitCondition = null, string logMessage = null)
+    public async Task<Position> SetBreakPointAsync(
+        string sourceId,
+        Position position,
+        string condition = null,
+        string hitCondition = null,
+        string logMessage = null)
     {
         var info = GetScriptInfo(sourceId);
         position = info.FindNearestBreakPointPosition(position);
 
         await InvokeAsync(() =>
         {
-            engine.Debugger.BreakPoints.Set(new ExtendedBreakPoint(sourceId, position.Line, position.Column, condition, hitCondition, logMessage));
+            engine.Debugger.BreakPoints.Set(
+                new ExtendedBreakPoint(sourceId, position.Line, position.Column, condition, hitCondition, logMessage));
         });
 
         return position;
@@ -300,6 +225,7 @@ internal class SynchronizingDebugger
         {
             throw new InvalidOperationException($"Attempt to attach debugger when already attached.");
         }
+
         IsAttached = true;
     }
 
@@ -309,12 +235,14 @@ internal class SynchronizingDebugger
         {
             return;
         }
+
         IsAttached = false;
     }
 
     public void WaitForClient()
     {
         state = DebuggerState.WaitingForClient;
+
         Wait();
     }
 
@@ -322,12 +250,14 @@ internal class SynchronizingDebugger
     {
         // Wait until UI calls NotifyUIReady to indicate that it's ready for the script to execute.
         state = DebuggerState.WaitingForUI;
+
         Wait();
     }
 
     public void NotifyUIReady()
     {
         state = DebuggerState.Entering;
+
         Resume();
     }
 
@@ -414,7 +344,9 @@ internal class SynchronizingDebugger
                     state = DebuggerState.Running;
                     return StepMode.None;
                 }
+
                 state = DebuggerState.Stepping;
+
                 return OnPause(PauseReason.Entry, e);
 
             case DebuggerState.Running:
@@ -422,6 +354,7 @@ internal class SynchronizingDebugger
 
             case DebuggerState.Pausing:
                 state = DebuggerState.Stepping;
+
                 return OnPause(PauseReason.Pause, e);
 
             case DebuggerState.Stepping:
@@ -433,7 +366,6 @@ internal class SynchronizingDebugger
             default:
                 throw new NotImplementedException($"Debugger state handling for {state} not implemented.");
         }
-
     }
 
     private StepMode DebugHandler_Break(object sender, DebugInformation e)
@@ -451,14 +383,17 @@ internal class SynchronizingDebugger
         {
             case PauseType.DebuggerStatement:
                 state = DebuggerState.Stepping;
+
                 return OnPause(PauseReason.DebuggerStatement, e);
 
             case PauseType.Break:
                 if (breakPointShouldBreak)
                 {
                     state = DebuggerState.Stepping;
+
                     return OnPause(PauseReason.BreakPoint, e);
                 }
+
                 break;
         }
 
@@ -483,14 +418,15 @@ internal class SynchronizingDebugger
     private bool HandleBreakPoint(DebugInformation info)
     {
         // Custom "extensions" to Jint's breakpoint functionality - hit (count) conditions and logpoints.
-        if (info.BreakPoint == null)
+        if (info.BreakPoint is null)
         {
             return false;
         }
+
         if (info.BreakPoint is ExtendedBreakPoint breakPoint)
         {
             // If breakpoint has a hit condition, evaluate it
-            if (breakPoint.HitCondition != null)
+            if (breakPoint.HitCondition is not null)
             {
                 breakPoint.HitCount++;
                 if (!breakPoint.HitCondition(breakPoint.HitCount))
@@ -506,6 +442,7 @@ internal class SynchronizingDebugger
                 // We're on the engine thread (it called us), so we're free to use Evaluate directly:
                 var message = engine.Debugger.Evaluate(breakPoint.LogMessage);
                 OnLogPoint(message.AsString(), info);
+
                 return false;
             }
         }
@@ -549,12 +486,6 @@ internal class SynchronizingDebugger
         }
     }
 
-    private enum ProcessMessagesResult
-    {
-        KeepWaiting,
-        ExecutionShouldContinue
-    }
-
     /// <summary>
     /// Processes all messages currently queued
     /// </summary>
@@ -567,9 +498,11 @@ internal class SynchronizingDebugger
             {
                 return ProcessMessagesResult.ExecutionShouldContinue;
             }
+
             EnsureOnEngineThread();
             message.Invoke();
         }
+
         return ProcessMessagesResult.KeepWaiting;
     }
 
@@ -586,6 +519,7 @@ internal class SynchronizingDebugger
     {
         var message = new Message<T>(action);
         channel.Writer.TryWrite(message);
+
         return await message.Result;
     }
 
@@ -596,6 +530,7 @@ internal class SynchronizingDebugger
     {
         var message = new Message(action);
         channel.Writer.TryWrite(message);
+
         await message.Result;
     }
 
@@ -606,5 +541,96 @@ internal class SynchronizingDebugger
     {
         var message = new Message(action);
         channel.Writer.TryWrite(message);
+    }
+
+    private enum DebuggerState
+    {
+        WaitingForClient,
+        WaitingForUI,
+        Entering,
+        Running,
+        Pausing,
+        Stepping,
+        Terminating,
+        Terminated
+    }
+
+    private enum ProcessMessagesResult
+    {
+        KeepWaiting,
+        ExecutionShouldContinue
+    }
+
+    private abstract class BaseMessage
+    {
+        public bool ShouldContinue { get; protected init; }
+
+        public abstract void Invoke();
+    }
+
+    private class ContinueMessage : BaseMessage
+    {
+        public ContinueMessage()
+        {
+            ShouldContinue = true;
+        }
+
+        public override void Invoke()
+        {
+            // Do nothing
+        }
+    }
+
+    private class Message<T> : BaseMessage
+    {
+        private readonly Func<T> action;
+        private readonly TaskCompletionSource<T> tcs = new();
+
+        public Task<T> Result => tcs.Task;
+
+        public Message(Func<T> action)
+        {
+            this.action = action;
+        }
+
+        public override void Invoke()
+        {
+            try
+            {
+                var result = action();
+                tcs.SetResult(result);
+            }
+            catch (Exception ex)
+            {
+                tcs.SetException(ex);
+            }
+        }
+    }
+
+    private class Message : BaseMessage
+    {
+        private readonly Action action;
+
+        private readonly TaskCompletionSource tcs = new();
+
+        public Task Result => tcs.Task;
+
+        public Message(Action action)
+        {
+            this.action = action;
+        }
+
+        public override void Invoke()
+        {
+            try
+            {
+                action();
+                tcs.SetResult();
+            }
+            catch (Exception ex)
+            {
+                tcs.SetException(ex);
+            }
+        }
     }
 }
