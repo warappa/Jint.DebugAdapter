@@ -1,7 +1,4 @@
-﻿using System.Text.Encodings.Web;
-using System.Text.Json;
-using Jint.Native.Object;
-using Jither.DebugAdapter.Protocol.Types;
+﻿using Jither.DebugAdapter.Protocol.Types;
 
 namespace Jint.DebugAdapter.Variables;
 

@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace Jither.DebugAdapter.Protocol.Requests;
+﻿namespace Jither.DebugAdapter.Protocol.Requests;
 
 /// <summary>
 /// This launch request is sent from the client to the debug adapter to start the debuggee with or without

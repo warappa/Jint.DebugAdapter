@@ -1,6 +1,5 @@
 ﻿using Jint.Native;
 using Jint.Runtime.Debugger;
-using Jither.DebugAdapter.Protocol.Types;
 
 namespace Jint.DebugAdapter.Variables;
 

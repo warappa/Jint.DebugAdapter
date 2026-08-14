@@ -1,6 +1,4 @@
-﻿using Jither.DebugAdapter.Helpers;
-
-namespace Jither.DebugAdapter.Protocol.Types;
+﻿namespace Jither.DebugAdapter.Protocol.Types;
 
 /// <summary>
 /// An ExceptionOptions assigns configuration options to a set of exceptions.

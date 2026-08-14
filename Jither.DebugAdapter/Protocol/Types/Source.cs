@@ -1,6 +1,4 @@
-﻿using Jither.DebugAdapter.Helpers;
-
-namespace Jither.DebugAdapter.Protocol.Types;
+﻿namespace Jither.DebugAdapter.Protocol.Types;
 
 /// <summary>
 /// A Source is a descriptor for source code.

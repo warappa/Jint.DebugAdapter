@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using Jint.DebugAdapter;
-using Jint.Runtime.Debugger;
 
 namespace Jint.DebugAdapterExample;
 

@@ -1,5 +1,4 @@
 ﻿using System.Text.Json.Serialization;
-using Jither.DebugAdapter.Helpers;
 
 namespace Jither.DebugAdapter.Protocol.Types;
 
