@@ -18,7 +18,7 @@ public class OutputEvent : ProtocolEventBody
     /// The output category. If not specified or if the category is not understood by the client,
     /// 'console' is assumed.
     /// </summary>
-    public OutputCategory Category { get; set; }
+    public OutputCategory? Category { get; set; }
 
     /// <summary>
     /// The output to report.
@@ -28,7 +28,7 @@ public class OutputEvent : ProtocolEventBody
     /// <summary>
     /// Support for keeping an output log organized by grouping related messages.
     /// </summary>
-    public OutputGroup Group { get; set; }
+    public OutputGroup? Group { get; set; }
 
     /// <summary>
     /// If an attribute 'variablesReference' exists and its value is > 0, the output contains objects which
@@ -39,7 +39,7 @@ public class OutputEvent : ProtocolEventBody
     /// <summary>
     /// An optional source location where the output was produced.
     /// </summary>
-    public Source Source { get; set; }
+    public Source? Source { get; set; }
 
     /// <summary>
     /// An optional source location line where the output was produced.
@@ -55,5 +55,5 @@ public class OutputEvent : ProtocolEventBody
     /// Optional data to report. For the 'telemetry' category the data will be sent to telemetry, 
     /// for the other categories the data is shown in JSON format.
     /// </summary>
-    public object Data { get; set; }
+    public object? Data { get; set; }
 }

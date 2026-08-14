@@ -18,20 +18,20 @@ public partial class ExtendedBreakPoint : BreakPoint
         string source,
         int line,
         int column,
-        string condition = null,
-        string hitCondition = null,
-        string logMessage = null)
+        string? condition = null,
+        string? hitCondition = null,
+        string? logMessage = null)
         : base(source, line, column, condition)
     {
         HitCondition = ParseHitCondition(hitCondition);
         LogMessage = LogMessageToAst(logMessage);
     }
 
-    public Func<uint, bool> HitCondition { get; set; }
+    public Func<uint, bool>? HitCondition { get; set; }
     public uint HitCount { get; set; }
     public Prepared<Script> LogMessage { get; set; }
 
-    private Func<uint, bool> ParseHitCondition(string condition)
+    private Func<uint, bool>? ParseHitCondition(string? condition)
     {
         if (string.IsNullOrEmpty(condition))
         {
@@ -66,7 +66,7 @@ public partial class ExtendedBreakPoint : BreakPoint
         };
     }
 
-    private Prepared<Script> LogMessageToAst(string message)
+    private Prepared<Script> LogMessageToAst(string? message)
     {
         if (string.IsNullOrEmpty(message))
         {

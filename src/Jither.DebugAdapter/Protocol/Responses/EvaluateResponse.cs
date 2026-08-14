@@ -30,7 +30,7 @@ public class EvaluateResponse : ProtocolResponseBody
     /// <summary>
     /// Properties of a evaluate result that can be used to determine how to render the result in the UI.
     /// </summary>
-    public VariablePresentationHint PresentationHint { get; set; }
+    public VariablePresentationHint? PresentationHint { get; set; }
 
     /// <summary>
     /// If variablesReference is > 0, the evaluate result is structured and its children can be retrieved by
@@ -61,5 +61,5 @@ public class EvaluateResponse : ProtocolResponseBody
     /// pointer. This attribute should be returned by a debug adapter if the client has passed the value true
     /// for the 'supportsMemoryReferences' capability of the 'initialize' request.
     /// </remarks>
-    public string MemoryReference { get; set; }
+    public string? MemoryReference { get; set; }
 }

@@ -7,13 +7,13 @@ public abstract class BaseProtocolRequest : ProtocolMessage
 {
     public const string TypeName = "request";
 
-    public BaseProtocolRequest()
+    protected BaseProtocolRequest()
+        : base(TypeName)
     {
-        Type = TypeName;
     }
 
     [JsonPropertyOrder(-10)]
-    public string Command { get; set; }
+    public required string Command { get; set; }
 
-    public abstract ProtocolArguments UntypedArguments { get; }
+    public abstract ProtocolArguments? UntypedArguments { get; }
 }

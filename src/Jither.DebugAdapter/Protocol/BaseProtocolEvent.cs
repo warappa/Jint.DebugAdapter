@@ -7,9 +7,10 @@ public abstract class BaseProtocolEvent : ProtocolMessage
 {
     public const string TypeName = "event";
 
-    protected BaseProtocolEvent()
+    protected BaseProtocolEvent(string @event)
+        : base(TypeName)
     {
-        Type = TypeName;
+        Event = @event;
     }
 
     [JsonPropertyOrder(-10)]

@@ -11,7 +11,7 @@ public class CompletionItem
     /// inserted when selecting this completion.</param>
     /// <param name="text">If text is not falsy then it is inserted instead of the label.</param>
     [JsonConstructor]
-    public CompletionItem(string label, string text = null)
+    public CompletionItem(string label, string? text = null)
     {
         Label = label;
         Text = text;
@@ -26,7 +26,7 @@ public class CompletionItem
     /// <summary>
     /// If text is not falsy then it is inserted instead of the label.
     /// </summary>
-    public string Text { get; set; }
+    public string? Text { get; set; }
 
     /// <summary>
     /// A string that should be used when comparing this item with other items. When `falsy` the label is used.

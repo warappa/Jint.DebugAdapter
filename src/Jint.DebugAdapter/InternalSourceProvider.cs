@@ -52,7 +52,7 @@ public class InternalSourceProvider : ISourceProvider
         };
     }
 
-    public string GetSourceId(Source source)
+    public string? GetSourceId(Source source)
     {
         if (source.SourceReference < 1)
         {

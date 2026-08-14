@@ -11,15 +11,16 @@ public class StringEnumConverter : JsonConverterFactory
 {
     public override bool CanConvert(Type typeToConvert)
     {
-        while (typeToConvert is not null)
+        Type? type = typeToConvert;
+        while (type is not null)
         {
-            if (typeToConvert.IsGenericType &&
-                typeToConvert.GetGenericTypeDefinition() == typeof(StringEnum<>))
+            if (type.IsGenericType &&
+                type.GetGenericTypeDefinition() == typeof(StringEnum<>))
             {
                 return true;
             }
 
-            typeToConvert = typeToConvert.BaseType;
+            type = type.BaseType;
         }
 
         return false;
@@ -29,8 +30,8 @@ public class StringEnumConverter : JsonConverterFactory
     {
         try
         {
-            return Activator.CreateInstance(
-                typeof(Converter<>).MakeGenericType(typeToConvert)) as JsonConverter;
+            return (JsonConverter)Activator.CreateInstance(
+                typeof(Converter<>).MakeGenericType(typeToConvert))!;
         }
         catch (TargetInvocationException ex)
         {

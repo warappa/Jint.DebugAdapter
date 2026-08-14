@@ -6,16 +6,16 @@ namespace Jint.DebugAdapter.Variables;
 public class ScopeVariableContainer : VariableContainer
 {
     private readonly DebugScope scope;
-    private readonly CallFrame frame;
+    private readonly CallFrame? frame;
 
-    public ScopeVariableContainer(VariableStore store, int id, DebugScope scope, CallFrame frame)
+    public ScopeVariableContainer(VariableStore store, int id, DebugScope scope, CallFrame? frame)
         : base(store, id)
     {
         this.scope = scope;
         this.frame = frame;
     }
 
-    public override JsValue SetVariable(string name, JsValue value)
+    public override JsValue? SetVariable(string name, JsValue value)
     {
         try
         {

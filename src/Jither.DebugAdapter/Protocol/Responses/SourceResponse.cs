@@ -19,5 +19,5 @@ public class SourceResponse : ProtocolResponseBody
     /// <summary>
     /// Optional content type (mime type) of the source.
     /// </summary>
-    public string MimeType { get; set; }
+    public string? MimeType { get; set; }
 }

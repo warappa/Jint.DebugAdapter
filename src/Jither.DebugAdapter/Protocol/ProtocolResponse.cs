@@ -6,17 +6,17 @@ namespace Jither.DebugAdapter.Protocol;
 public class ProtocolResponse : BaseProtocolResponse
 {
     [JsonIgnore]
-    public ProtocolResponseBody Body { get; private set; }
+    public ProtocolResponseBody? Body { get; private set; }
 
     [JsonIgnore]
-    public override ProtocolResponseBody UntypedBody => Body;
+    public override ProtocolResponseBody? UntypedBody => Body;
 
     [JsonPropertyName("body"), JsonPropertyOrder(100)]
-    public object SerializedBody => Body;
+    public object? SerializedBody => Body;
 
-    public ProtocolResponse(string command, int requestSeq, bool success, Responses.ProtocolResponseBody body, string message = null)
+    public ProtocolResponse(string command, int requestSeq, bool success, Responses.ProtocolResponseBody? body, string? message = null)
+        : base(command)
     {
-        Command = command;
         RequestSeq = requestSeq;
         Success = success;
         Body = body;

@@ -36,7 +36,7 @@ public class Console
         InternalSend(OutputCategory.Console, "\x1b[2J");
     }
 
-    public void Count(string label = null)
+    public void Count(string? label = null)
     {
         label ??= "default";
 
@@ -51,7 +51,7 @@ public class Console
         Log($"{label}: {count}");
     }
 
-    public void CountReset(string label = null)
+    public void CountReset(string? label = null)
     {
         label ??= "default";
 
@@ -104,24 +104,24 @@ public class Console
 
     // TODO: Table()
 
-    public void Time(string label = null)
+    public void Time(string? label = null)
     {
         label ??= "default";
 
         timers[label] = Stopwatch.GetTimestamp();
     }
 
-    public void TimeEnd(string label = null)
+    public void TimeEnd(string? label = null)
     {
         InternalTimeLog(label, end: true);
     }
 
-    public void TimeLog(string label = null)
+    public void TimeLog(string? label = null)
     {
         InternalTimeLog(label, end: false);
     }
 
-    private void InternalTimeLog(string label, bool end)
+    private void InternalTimeLog(string? label, bool end)
     {
         label ??= "default";
 
@@ -152,18 +152,18 @@ public class Console
         Send(OutputCategory.Stderr, values);
     }
 
-    private void Send(OutputCategory category, JsValue[] values, OutputGroup group = null)
+    private void Send(OutputCategory category, JsValue[] values, OutputGroup? group = null)
     {
         var message = string.Join(' ', values.Select(v => v?.ToString()));
         Send(category, message, group);
     }
 
-    internal void Send(OutputCategory category, string message, OutputGroup group = null)
+    internal void Send(OutputCategory category, string message, OutputGroup? group = null)
     {
         InternalSend(category, $"{message}\n", group);
     }
 
-    private void InternalSend(OutputCategory category, string message, OutputGroup group = null)
+    private void InternalSend(OutputCategory category, string message, OutputGroup? group = null)
     {
         EnsureOnEngineThread();
 
@@ -183,10 +183,10 @@ public class Console
             Column = location?.Start.Column,
             Source = new Source
             {
-                Name = location is not null ?
-                    Path.GetFileName(location.Value.SourceFile) :
+                Name = location.HasValue && location.Value.SourceFile is not null ?
+                    Path.GetFileName(location!.Value.SourceFile) :
                     "<unknown>",
-                Path = location?.SourceFile
+                Path = location?.SourceFile!
             },
             Group = group
         });

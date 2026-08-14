@@ -332,9 +332,9 @@ public partial class DebugProtocol
 
     private void BuildAndSendResponse(
         BaseProtocolRequest request,
-        ProtocolResponseBody body,
+        ProtocolResponseBody? body,
         bool success,
-        string message = null)
+        string? message = null)
     {
         var response = new ProtocolResponse(request.Command, request.Seq, success, body, message);
         SendMessage(response);

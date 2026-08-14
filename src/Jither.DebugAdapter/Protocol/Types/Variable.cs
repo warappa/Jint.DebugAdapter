@@ -61,13 +61,13 @@ public class Variable
     /// <summary>
     /// Properties of a variable that can be used to determine how to render the variable in the UI.
     /// </summary>
-    public VariablePresentationHint PresentationHint { get; set; }
+    public VariablePresentationHint? PresentationHint { get; set; }
 
     /// <summary>
     /// Optional evaluatable name of this variable which can be passed to the 'EvaluateRequest' to fetch the
     /// variable's value.
     /// </summary>
-    public string EvaluateName { get; set; }
+    public string? EvaluateName { get; set; }
 
     /// <summary>
     /// If variablesReference is > 0, the variable is structured and its children can be retrieved by passing
@@ -95,5 +95,5 @@ public class Variable
     /// This attribute is only required if the client has passed the value true for the 'supportsMemoryReferences'
     /// capability of the 'initialize' request.
     /// </remarks>
-    public string MemoryReference { get; set; }
+    public string? MemoryReference { get; set; }
 }

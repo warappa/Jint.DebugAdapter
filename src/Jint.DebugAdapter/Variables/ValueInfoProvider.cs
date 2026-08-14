@@ -29,7 +29,7 @@ public class ValueInfoProvider
     /// <summary>
     /// Creates ValueInfo for a given JsValue.
     /// </summary>
-    public ValueInfo Create(string name, JsValue value)
+    public ValueInfo Create(string name, JsValue? value)
     {
         var result = new ValueInfo(name)
         {
@@ -88,7 +88,7 @@ public class ValueInfoProvider
     /// <summary>
     /// Returns the string representation of a JsValue (displayed in the Variables panel in the debugger)
     /// </summary>
-    public string RenderValue(string name, JsValue value)
+    public string RenderValue(string name, JsValue? value)
     {
         return value switch
         {
@@ -123,7 +123,7 @@ public class ValueInfoProvider
     /// debugger). The string representation is intended to be more specific than JsValue's Type property -
     /// e.g. returning the constructor of Object instances.
     /// </summary>
-    public string RenderType(JsValue value)
+    public string RenderType(JsValue? value)
     {
         return value switch
         {
@@ -157,7 +157,7 @@ public class ValueInfoProvider
     }
 
     // Intended as possible future extension point
-    protected string GetFunctionName(Function func)
+    protected string? GetFunctionName(Function func)
     {
         if (func is ObjectConstructor)
         {

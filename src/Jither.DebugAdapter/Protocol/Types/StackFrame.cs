@@ -33,7 +33,7 @@ public class StackFrame
     /// <summary>
     /// The optional source of the frame.
     /// </summary>
-    public Source Source { get; set; }
+    public Source? Source { get; set; }
 
     /// <summary>
     /// The line within the file of the frame. If source is null or doesn't exist, line is 0 and must be ignored.
@@ -67,7 +67,7 @@ public class StackFrame
     /// <summary>
     /// Optional memory reference for the current instruction pointer in this frame.
     /// </summary>
-    public string InstructionPointerReference { get; set; }
+    public string? InstructionPointerReference { get; set; }
 
     /// <summary>
     /// The module associated with this frame, if any.

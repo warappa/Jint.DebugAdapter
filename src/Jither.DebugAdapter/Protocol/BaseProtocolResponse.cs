@@ -7,9 +7,10 @@ public abstract class BaseProtocolResponse : ProtocolMessage
 {
     public const string TypeName = "response";
 
-    public BaseProtocolResponse()
+    protected BaseProtocolResponse(string command)
+        : base(TypeName)
     {
-        Type = TypeName;
+        Command = command;
     }
 
     [JsonPropertyOrder(-10)]
@@ -21,7 +22,7 @@ public abstract class BaseProtocolResponse : ProtocolMessage
     [JsonPropertyName("request_seq")]
     public int RequestSeq { get; set; }
 
-    public string Message { get; set; }
+    public string? Message { get; set; }
 
-    public abstract ProtocolResponseBody UntypedBody { get; }
+    public abstract ProtocolResponseBody? UntypedBody { get; }
 }

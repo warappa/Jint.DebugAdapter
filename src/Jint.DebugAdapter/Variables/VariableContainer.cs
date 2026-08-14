@@ -17,7 +17,7 @@ public abstract class VariableContainer
         Id = id;
     }
 
-    public IEnumerable<JintVariable> GetVariables(VariableFilter filter, int? start, int? count)
+    public IEnumerable<JintVariable> GetVariables(VariableFilter? filter, int? start, int? count)
     {
         IEnumerable<JintVariable> result;
         if (filter == VariableFilter.Indexed)
@@ -37,9 +37,9 @@ public abstract class VariableContainer
         return result.OrderBy(v => v.SortOrder);
     }
 
-    public abstract JsValue SetVariable(string name, JsValue value);
+    public abstract JsValue? SetVariable(string name, JsValue value);
 
-    protected JintVariable CreateVariable(string name, JsValue value)
+    protected JintVariable CreateVariable(string name, JsValue? value)
     {
         return CreateVariable(store.CreateValue(name, value));
     }

@@ -28,5 +28,5 @@ public class StepOutArguments : ProtocolArguments
     /// <summary>
     /// Optional granularity to step. If no granularity is specified, a granularity of 'statement' is assumed.
     /// </summary>
-    public SteppingGranularity Granularity { get; set; }
+    public SteppingGranularity? Granularity { get; set; }
 }

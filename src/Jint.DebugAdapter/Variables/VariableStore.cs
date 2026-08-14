@@ -17,7 +17,7 @@ public class VariableStore
         infoProvider = new ValueInfoProvider(this);
     }
 
-    public int Add(DebugScope scope, CallFrame frame = null)
+    public int Add(DebugScope scope, CallFrame? frame = null)
     {
         var container = new ScopeVariableContainer(this, nextId++, scope, frame);
         return Add(container);
@@ -52,7 +52,7 @@ public class VariableStore
         return containers[id];
     }
 
-    public ValueInfo CreateValue(string name, JsValue value)
+    public ValueInfo CreateValue(string name, JsValue? value)
     {
         return infoProvider.Create(name, value);
     }

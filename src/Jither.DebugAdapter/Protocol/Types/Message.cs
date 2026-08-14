@@ -48,10 +48,10 @@ public class Message
     /// <summary>
     /// An optional url where additional information about this message can be found.
     /// </summary>
-    public string Url { get; set; }
+    public string? Url { get; set; }
 
     /// <summary>
     /// An optional label that is presented to the user as the UI for opening the url.
     /// </summary>
-    public string UrlLabel { get; set; }
+    public string? UrlLabel { get; set; }
 }

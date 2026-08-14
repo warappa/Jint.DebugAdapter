@@ -16,5 +16,5 @@ public class SetInstructionBreakpointsArguments : ProtocolArguments
     /// <summary>
     /// The instruction references of the breakpoints
     /// </summary>
-    public List<InstructionBreakpoint> Breakpoints { get; set; }
+    public required List<InstructionBreakpoint> Breakpoints { get; set; }
 }

@@ -15,7 +15,7 @@ public class GotoTarget
     /// <param name="instructionPointerReference">Optional memory reference for the instruction pointer value
     /// represented by this target.</param>
     public GotoTarget(int id, string label, int line, int? column = null, int? endLine = null,
-        int? endColumn = null, string instructionPointerReference = null)
+        int? endColumn = null, string? instructionPointerReference = null)
     {
         Id = id;
         Label = label;
@@ -59,5 +59,5 @@ public class GotoTarget
     /// <summary>
     /// Optional memory reference for the instruction pointer value represented by this target.
     /// </summary>
-    public string InstructionPointerReference { get; set; }
+    public string? InstructionPointerReference { get; set; }
 }

@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics;
+using System.Text.Json;
 using Acornima;
 using Jint.DebugAdapter.Variables;
 using Jint.Runtime.Debugger;
@@ -9,6 +10,7 @@ using Jither.DebugAdapter.Protocol.Requests;
 using Jither.DebugAdapter.Protocol.Responses;
 using Jither.DebugAdapter.Protocol.Types;
 using Scope = Jither.DebugAdapter.Protocol.Types.Scope;
+using StackFrame = Jither.DebugAdapter.Protocol.Types.StackFrame;
 using Thread = Jither.DebugAdapter.Protocol.Types.Thread;
 
 namespace Jint.DebugAdapter;
@@ -32,7 +34,7 @@ public class JintAdapter : Adapter
     private AdapterMode mode;
 
     private bool restarting;
-    private DebugInformation currentDebugInformation;
+    private DebugInformation? currentDebugInformation;
 
     public Console Console { get; }
 
@@ -97,7 +99,7 @@ public class JintAdapter : Adapter
         // Check if we *ever* need to stop the protocol
         if (!restarting)
         {
-            Protocol.Stop();
+            Protocol?.Stop();
         }
     }
 
@@ -172,7 +174,8 @@ public class JintAdapter : Adapter
     protected override async Task<BreakpointLocationsResponse> BreakpointLocationsRequest(
         BreakpointLocationsArguments arguments)
     {
-        var id = host.SourceProvider.GetSourceId(arguments.Source);
+        var id = host.SourceProvider.GetSourceId(arguments.Source) ??
+            throw new InvalidOperationException($"Could not get source id for '{arguments.Source}'");
 
         var (start, end) = ToJintRange(arguments.Line, arguments.Column, arguments.EndLine, arguments.EndColumn);
 
@@ -295,7 +298,8 @@ public class JintAdapter : Adapter
 
     private async Task LaunchAsync(ConfigurationArguments arguments)
     {
-        var program = arguments.AdditionalProperties["program"].GetString();
+        var program = arguments.AdditionalProperties["program"].GetString() ??
+            throw new ArgumentNullException("program");
         var pauseOnEntry = arguments.AdditionalProperties["stopOnEntry"].GetBoolean();
         // Not a fan of double negatives (i.e. testing for !noDebug), so let's convert it to debug
         var debug = !(arguments.NoDebug ?? false);
@@ -333,7 +337,9 @@ public class JintAdapter : Adapter
 
     protected override async Task<ScopesResponse> ScopesRequest(ScopesArguments arguments)
     {
-        var frame = currentDebugInformation.CallStack[arguments.FrameId];
+        Debug.Assert(currentDebugInformation is not null, "currentDebugInformation is null");
+
+        var frame = currentDebugInformation!.CallStack[arguments.FrameId];
 
         return new ScopesResponse(frame.ScopeChain
             .Select(s =>
@@ -349,7 +355,8 @@ public class JintAdapter : Adapter
     {
         // TODO: What should be done if client sends breakpoints for unknown source?
         // (Happens e.g. when launching a file in VSCode while other files are open).
-        var id = host.SourceProvider.GetSourceId(arguments.Source);
+        var id = host.SourceProvider.GetSourceId(arguments.Source) ??
+            throw new InvalidOperationException($"Could not get source id for '{arguments.Source}'");
 
         // SetBreakpoints expects us to clear all current breakpoints
         await debugger.ClearBreakPointsAsync();
@@ -414,6 +421,8 @@ public class JintAdapter : Adapter
 
     protected override async Task<StackTraceResponse> StackTraceRequest(StackTraceArguments arguments)
     {
+        Debug.Assert(currentDebugInformation is not null, "currentDebugInformation is null");
+
         // TODO: StackFrameFormat handling?
         var frames = currentDebugInformation.CallStack.AsEnumerable();
 
@@ -438,7 +447,8 @@ public class JintAdapter : Adapter
             {
                 Source = new Source
                 {
-                    Name = Path.GetFileName(location.SourceFile),
+                    Name = Path.GetFileName(location.SourceFile ??
+                        throw new InvalidOperationException("No source file was specified")),
                     Path = location.SourceFile,
                 },
                 Line = start.Line,

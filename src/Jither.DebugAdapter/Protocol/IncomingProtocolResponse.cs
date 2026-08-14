@@ -6,6 +6,11 @@ namespace Jither.DebugAdapter.Protocol;
 public class IncomingProtocolResponse<T> : BaseProtocolResponse
     where T : Responses.ProtocolResponseBody
 {
+    public IncomingProtocolResponse(string command)
+        : base(command)
+    {
+    }
+
     [JsonPropertyOrder(100)]
     public T Body { get; set; }
 

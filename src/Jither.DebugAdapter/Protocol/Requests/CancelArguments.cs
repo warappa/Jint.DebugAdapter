@@ -16,5 +16,5 @@ public class CancelArguments : ProtocolArguments
     /// <remarks>
     /// Both a 'requestId' and a 'progressId' can be specified in one request.
     /// </remarks>
-    public string ProgressId { get; set; }
+    public string? ProgressId { get; set; }
 }

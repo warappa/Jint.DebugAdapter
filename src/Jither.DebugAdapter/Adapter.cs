@@ -1,4 +1,5 @@
-﻿using Jither.DebugAdapter.Protocol;
+﻿using System.Diagnostics;
+using Jither.DebugAdapter.Protocol;
 using Jither.DebugAdapter.Protocol.Events;
 using Jither.DebugAdapter.Protocol.Requests;
 using Jither.DebugAdapter.Protocol.Responses;
@@ -9,7 +10,7 @@ public abstract class Adapter
 {
     private readonly Endpoint endpoint;
 
-    public DebugProtocol Protocol { get; set; }
+    public DebugProtocol? Protocol { get; set; }
 
     protected Adapter(Endpoint endpoint)
     {
@@ -30,11 +31,13 @@ public abstract class Adapter
 
     public void SendEvent(ProtocolEventBody body)
     {
+        Debug.Assert(Protocol is not null, "Protocol is null");
+        
         var evt = new ProtocolEvent(body.EventName, body);
         Protocol.SendEvent(evt);
     }
 
-    internal async Task<ProtocolResponseBody> HandleRequest(BaseProtocolRequest request)
+    internal async Task<ProtocolResponseBody?> HandleRequest(BaseProtocolRequest request)
     {
         switch (request.UntypedArguments)
         {
@@ -121,7 +124,7 @@ public abstract class Adapter
 
     protected void Stop()
     {
-        Protocol.Stop();
+        Protocol?.Stop();
     }
 
     protected virtual Task AttachRequest(AttachArguments arguments) => throw new NotImplementedException();

@@ -14,9 +14,9 @@ public class ProtocolEvent : BaseProtocolEvent
     [JsonPropertyName("body"), JsonPropertyOrder(100)]
     public object SerializedBody => Body;
 
-    public ProtocolEvent(string evt, ProtocolEventBody body)
+    public ProtocolEvent(string @event, ProtocolEventBody body)
+        : base(@event)
     {
-        Event = evt;
         Body = body;
     }
 }

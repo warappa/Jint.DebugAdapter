@@ -25,7 +25,9 @@ public class ArrayLikeVariableContainer : ObjectVariableContainer
         if (property.Set is not null)
         {
             instance.Engine.Invoke(property.Set, value);
-            return instance.Engine.Invoke(property.Get);
+            return property.Get is not null ?
+                instance.Engine.Invoke(property.Get) :
+                value;
         }
 
         throw new VariableException($"Property is read only.");

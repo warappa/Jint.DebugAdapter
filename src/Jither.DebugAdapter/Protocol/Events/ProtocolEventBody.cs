@@ -10,7 +10,7 @@ public abstract class ProtocolEventBody
     public string EventName => EventNameInternal;
 
     [JsonExtensionData]
-    public Dictionary<string, JsonElement> AdditionalProperties { get; set; }
+    public Dictionary<string, JsonElement> AdditionalProperties { get; set; } = null!;
 
     protected abstract string EventNameInternal { get; }
 }

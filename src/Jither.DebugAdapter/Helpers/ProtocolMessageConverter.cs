@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Jither.DebugAdapter.Protocol;
 using Jither.DebugAdapter.Protocol.Requests;
@@ -25,38 +26,45 @@ internal class ProtocolMessageConverter : JsonConverter<ProtocolMessage>
             string? evt = null;
             if (doc.RootElement.TryGetProperty("command", out var commandProp))
             {
-                command = commandProp.GetString();
+                command = commandProp.GetString() ??
+                    throw new InvalidOperationException("'command' is invalid");
             }
 
             if (doc.RootElement.TryGetProperty("event", out var evtProp))
             {
-                evt = evtProp.GetString();
+                evt = evtProp.GetString() ??
+                    throw new InvalidOperationException("'event' is invalid");
             }
 
-            var type = GetConcreteType(typeName.GetString(), command, evt);
+            var type = GetConcreteType(typeName.GetString()!, command, evt);
 
             var jsonObject = doc.RootElement.GetRawText();
             var result = JsonSerializer.Deserialize(jsonObject, type, options) as ProtocolMessage;
+
+            Debug.Assert(result is not null, "Protocol message is not deserializable");
 
             // For equal treatment when dealing with argument-less requests, instantiantiate empty arguments object 
             if (result is IncomingProtocolRequest req &&
                 req.UntypedArguments is null)
             {
                 var argumentsType = ProtocolMessageRegistry.GetArgumentsType(command);
-                req.Sanitize((ProtocolArguments)Activator.CreateInstance(argumentsType));
+                req.Sanitize((ProtocolArguments)Activator.CreateInstance(argumentsType)!);
             }
 
             return result;
         }
     }
 
-    private Type GetConcreteType(string typeName, string command, string evt)
+    private Type GetConcreteType(string typeName, string? command, string? evt)
     {
         return typeName switch
         {
-            BaseProtocolRequest.TypeName => ProtocolMessageRegistry.GetRequestType(command),
-            BaseProtocolResponse.TypeName => ProtocolMessageRegistry.GetResponseType(command),
-            BaseProtocolEvent.TypeName => ProtocolMessageRegistry.GetEventType(evt),
+            BaseProtocolRequest.TypeName => ProtocolMessageRegistry.GetRequestType(command ??
+                throw new InvalidOperationException("command missing")),
+            BaseProtocolResponse.TypeName => ProtocolMessageRegistry.GetResponseType(command ??
+                throw new InvalidOperationException("command missing")),
+            BaseProtocolEvent.TypeName => ProtocolMessageRegistry.GetEventType(evt ??
+                throw new InvalidOperationException("event missing")),
             _ => throw new NotSupportedException($"Unsupported protocol message type: {typeName}"),
         };
     }

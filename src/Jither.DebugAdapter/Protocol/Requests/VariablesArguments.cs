@@ -19,7 +19,7 @@ public class VariablesArguments : ProtocolArguments
     /// Optional filter to limit the child variables to either named or indexed. If omitted, 
     /// both types are fetched.
     /// </summary>
-    public VariableFilter Filter { get; set; }
+    public VariableFilter? Filter { get; set; }
 
     /// <summary>
     /// The index of the first variable to return; if omitted children start at 0.

@@ -7,6 +7,11 @@ namespace Jither.DebugAdapter.Protocol;
 [JsonConverter(typeof(ProtocolMessageConverter))]
 public abstract class ProtocolMessage
 {
+    protected ProtocolMessage(string type)
+    {
+        Type = type;
+    }
+    
     [JsonPropertyOrder(-100)]
     public string Type { get; set; }
 
@@ -14,5 +19,5 @@ public abstract class ProtocolMessage
     public int Seq { get; set; }
 
     [JsonExtensionData]
-    public Dictionary<string, JsonElement> AdditionalProperties { get; set; }
+    public Dictionary<string, JsonElement> AdditionalProperties { get; set; } = null!;
 }

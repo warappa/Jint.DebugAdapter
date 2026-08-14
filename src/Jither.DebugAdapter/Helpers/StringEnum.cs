@@ -1,4 +1,6 @@
-﻿namespace Jither.DebugAdapter.Helpers;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Jither.DebugAdapter.Helpers;
 
 public abstract class StringEnum<T> : IEquatable<T> where T : StringEnum<T>, new()
 {
@@ -10,8 +12,9 @@ public abstract class StringEnum<T> : IEquatable<T> where T : StringEnum<T>, new
     protected StringEnum()
     {
     }
-
-    protected static T Create(string value)
+    
+    [return: NotNullIfNotNull(nameof(value))]
+    protected static T? Create(string? value)
     {
         if (value is null)
         {
@@ -30,7 +33,7 @@ public abstract class StringEnum<T> : IEquatable<T> where T : StringEnum<T>, new
         return result;
     }
 
-    public static T Custom(string value)
+    public static T? Custom(string? value)
     {
         if (value is null)
         {
@@ -68,20 +71,20 @@ public abstract class StringEnum<T> : IEquatable<T> where T : StringEnum<T>, new
                 nameof(value));
         }
 
-        return result;
+        return result!;
     }
 
-    public static bool TryParse(string value, out T result)
+    public static bool TryParse(string value, out T? result)
     {
         return values.TryGetValue(value, out result);
     }
 
-    public bool Equals(T other)
+    public bool Equals(T? other)
     {
         return other?.EnumValue == EnumValue;
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return EnumValue.Equals((obj as T)?.EnumValue ?? (obj as string));
     }
@@ -91,12 +94,12 @@ public abstract class StringEnum<T> : IEquatable<T> where T : StringEnum<T>, new
         return EnumValue.GetHashCode();
     }
 
-    public static bool operator ==(StringEnum<T> a, StringEnum<T> b)
+    public static bool operator ==(StringEnum<T>? a, StringEnum<T>? b)
     {
         return a?.Equals(b) ?? false;
     }
 
-    public static bool operator !=(StringEnum<T> a, StringEnum<T> b)
+    public static bool operator !=(StringEnum<T>? a, StringEnum<T>? b)
     {
         return !(a?.Equals(b) ?? false);
     }

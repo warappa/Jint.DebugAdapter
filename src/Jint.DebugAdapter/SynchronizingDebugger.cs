@@ -26,12 +26,12 @@ internal class SynchronizingDebugger
         engineThreadId = Environment.CurrentManagedThreadId;
     }
 
-    public event DebugLogMessageEventHandler LogPoint;
-    public event DebugPauseEventHandler Paused;
-    public event DebugEventHandler Resumed;
-    public event DebugEventHandler Cancelled;
-    public event DebugEventHandler Done;
-    public event DebugExceptionEventHandler Error;
+    public event DebugLogMessageEventHandler? LogPoint;
+    public event DebugPauseEventHandler? Paused;
+    public event DebugEventHandler? Resumed;
+    public event DebugEventHandler? Cancelled;
+    public event DebugEventHandler? Done;
+    public event DebugExceptionEventHandler? Error;
 
     public delegate void DebugLogMessageEventHandler(string message, DebugInformation info);
     public delegate void DebugPauseEventHandler(PauseReason reason, DebugInformation info);
@@ -58,6 +58,7 @@ internal class SynchronizingDebugger
         {
             throw new DebuggerException($"Requested source '{id}' not loaded.");
         }
+        
         return info;
     }
 
@@ -200,9 +201,9 @@ internal class SynchronizingDebugger
     public async Task<Position> SetBreakPointAsync(
         string sourceId,
         Position position,
-        string condition = null,
-        string hitCondition = null,
-        string logMessage = null)
+        string? condition = null,
+        string? hitCondition = null,
+        string? logMessage = null)
     {
         var info = GetScriptInfo(sourceId);
         position = info.FindNearestBreakPointPosition(position);
@@ -314,7 +315,9 @@ internal class SynchronizingDebugger
 
     private void DebugHandler_BeforeEvaluate(object sender, Program ast)
     {
-        RegisterScriptInfo(ast.Location.SourceFile, ast);
+        var sourceFile = ast.Location.SourceFile ??
+            throw new InvalidOperationException("No source file was specified");
+        RegisterScriptInfo(sourceFile, ast);
     }
 
     private StepMode DebugHandler_Step(object sender, DebugInformation e)

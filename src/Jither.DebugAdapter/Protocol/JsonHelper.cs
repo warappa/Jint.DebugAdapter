@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Jither.DebugAdapter.Helpers;
 
@@ -27,16 +28,20 @@ internal static class JsonHelper
 
     public static T Deserialize<T>(string json)
     {
-        return JsonSerializer.Deserialize<T>(json, options);
+        return JsonSerializer.Deserialize<T>(json, options)!;
     }
 
-    public static string SerializeForOutput<T>(T obj)
+    public static string SerializeForOutput<T>([DisallowNull] T obj)
     {
+        ArgumentNullException.ThrowIfNull(obj);
+
         return JsonSerializer.Serialize<object>(obj, outputOptions);
     }
 
     public static string Serialize<T>(T obj)
     {
+        ArgumentNullException.ThrowIfNull(obj);
+        
         return JsonSerializer.Serialize<object>(obj, options);
     }
 }

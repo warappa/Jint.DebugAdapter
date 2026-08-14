@@ -25,7 +25,7 @@ public class InvalidatedEvent : ProtocolEventBody
     /// understood the client should assume a single value 'all'.
     /// </remarks>
     // export type InvalidatedAreas = 'all' | 'stacks' | 'threads' | 'variables' | string
-    public List<string> InvalidatedAreas { get; set; }
+    public List<string>? InvalidatedAreas { get; set; }
 
     /// <summary>
     /// If specified, the client only needs to refetch data related to this thread.
