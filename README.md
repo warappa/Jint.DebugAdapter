@@ -1,3 +1,8 @@
+### Fork
+This fork supports **Jint 4.15.3+**.
+
+The code is modernized to use current C# code style.
+
 Jint.DebugAdapter
 =================
 (Eventually) an implementation of the [DebugAdapter protocol](https://microsoft.github.io/debug-adapter-protocol/) (used by e.g. Visual Studio Code) for [Jint](https://github.com/sebastienros/jint) debugging.
