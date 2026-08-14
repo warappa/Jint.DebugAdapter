@@ -128,11 +128,12 @@ csharp_style_prefer_readonly_struct_member = true:suggestion
 
 # Code-block preferences
 csharp_prefer_braces = true:silent
-csharp_prefer_simple_using_statement = true:suggestion
+csharp_prefer_simple_using_statement = false:none
 csharp_style_namespace_declarations = file_scoped:warning
-csharp_style_prefer_method_group_conversion = true:silent
+csharp_style_prefer_method_group_conversion = false:silent
 csharp_style_prefer_primary_constructors = true:suggestion
 csharp_style_prefer_top_level_statements = true:silent
+
 
 # Expression-level preferences
 csharp_prefer_simple_default_expression = true:warning
@@ -256,17 +257,17 @@ dotnet_naming_rule.public_constant_fields_should_be_pascalcase.severity = warnin
 dotnet_naming_rule.public_constant_fields_should_be_pascalcase.symbols = public_constant_fields
 dotnet_naming_rule.public_constant_fields_should_be_pascalcase.style = pascalcase
 
-dotnet_naming_rule.private_constant_fields_should_be_pascalcase.severity = warning
-dotnet_naming_rule.private_constant_fields_should_be_pascalcase.symbols = private_constant_fields
-dotnet_naming_rule.private_constant_fields_should_be_pascalcase.style = pascalcase
+dotnet_naming_rule.private_constant_fields_should_be_camelcase.severity = warning
+dotnet_naming_rule.private_constant_fields_should_be_camelcase.symbols = private_constant_fields
+dotnet_naming_rule.private_constant_fields_should_be_camelcase.style = camelcase
 
 dotnet_naming_rule.public_static_readonly_fields_should_be_pascalcase.severity = warning
 dotnet_naming_rule.public_static_readonly_fields_should_be_pascalcase.symbols = public_static_readonly_fields
 dotnet_naming_rule.public_static_readonly_fields_should_be_pascalcase.style = pascalcase
 
-dotnet_naming_rule.private_static_readonly_fields_should_be_pascalcase.severity = warning
-dotnet_naming_rule.private_static_readonly_fields_should_be_pascalcase.symbols = private_static_readonly_fields
-dotnet_naming_rule.private_static_readonly_fields_should_be_pascalcase.style = pascalcase
+dotnet_naming_rule.private_static_readonly_fields_should_be_camelcase.severity = warning
+dotnet_naming_rule.private_static_readonly_fields_should_be_camelcase.symbols = private_static_readonly_fields
+dotnet_naming_rule.private_static_readonly_fields_should_be_camelcase.style = camelcase
 
 dotnet_naming_rule.enums_should_be_pascalcase.severity = warning
 dotnet_naming_rule.enums_should_be_pascalcase.symbols = enums

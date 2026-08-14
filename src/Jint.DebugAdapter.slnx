@@ -1,4 +1,8 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="..\.editorconfig" />
+    <File Path="Directory.Packages.props" />
+  </Folder>
   <Project Path="Jint.DebugAdapter/Jint.DebugAdapter.csproj" />
   <Project Path="Jint.DebugAdapterExample/Jint.DebugAdapterExample.csproj" />
   <Project Path="Jither.DebugAdapter/Jither.DebugAdapter.csproj" />
